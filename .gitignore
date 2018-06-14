@@ -1,4 +1,2 @@
 .idea/
-*.class
-project/target/
-target/
+out/
