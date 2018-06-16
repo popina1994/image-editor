@@ -1,4 +1,9 @@
-package  scala
+package rs.ac.bg.etf.zd173013m
+
+class Test
+{
+  def nesto = "Nesto"
+}
 
 object Test {
   def main(args: Array[String]) {
