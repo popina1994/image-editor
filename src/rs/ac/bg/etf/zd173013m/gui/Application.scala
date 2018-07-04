@@ -14,11 +14,12 @@ object Application extends SimpleSwingApplication {
     title = "Image Editor"
     preferredSize = getDefaultToolkit.getScreenSize
     private val imageLabel = new ImageLabel(Image.DefaultFileName)
-    private val image = new Image(imageLabel, Image.DefaultFileName)
+    private val scrollPaneSelectionRectangular = new ScrollPaneSelectionRectangular()
+    private val image = new Image(imageLabel, Image.DefaultFileName, scrollPaneSelectionRectangular)
 
     contents = new FlowPanel {
       contents += imageLabel
-      contents += new ScrollPaneSelectionRectangular().scrollPane
+      contents += scrollPaneSelectionRectangular.scrollPane
       contents += new ScrollPaneSelectionSelection().scrollPane
       contents += new ScrollPaneSelectionLayer().scrollPane
     }

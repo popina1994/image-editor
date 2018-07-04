@@ -4,4 +4,6 @@ import rs.ac.bg.etf.zd173013m.logic.selection.SelectionRectangular
 
 class ScrollPaneSelectionLayer extends ScrollPaneSelection {
   listSelections += SelectionRectangular("1l") += SelectionRectangular("2l")
+
+  override def createSelection(name: String): SelectionRectangular = null
 }

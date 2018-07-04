@@ -1,8 +1,5 @@
 package rs.ac.bg.etf.zd173013m.gui.image_label
 
-import java.awt.image.BufferedImage
-import java.awt.{AlphaComposite, Color}
-
 import javax.swing.ImageIcon
 
 import scala.swing.event.{MouseDragged, MousePressed, MouseReleased}
@@ -26,9 +23,5 @@ class ImageLabel(var iconName: String, var listener: ImageLabelListener) extends
       println("Povukao misa")
       listener.onMouseDrag(point)
     }
-  }
-
-  def changeIcon(icon: ImageIcon) = {
-    this.icon = new ImageIcon(iconName)
   }
 }
