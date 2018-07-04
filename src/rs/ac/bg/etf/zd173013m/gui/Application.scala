@@ -1,27 +1,28 @@
 package rs.ac.bg.etf.zd173013m.gui
 
-import java.awt.{AlphaComposite, Color, Graphics, Graphics2D}
 import java.awt.Toolkit._
-import java.awt.geom.Rectangle2D
-import java.awt.image.BufferedImage
-
-import javax.swing.ImageIcon
 import java.io.File
 
-import scala.swing.ListView.Renderer
+import rs.ac.bg.etf.zd173013m.gui.image_label.ImageLabel
+import rs.ac.bg.etf.zd173013m.gui.scroll_pane.{ScrollPaneSelectionLayer, ScrollPaneSelectionRectangular, ScrollPaneSelectionSelection}
+import rs.ac.bg.etf.zd173013m.logic.Image
+
 import scala.swing._
-import scala.swing.event._
 
 object Application extends SimpleSwingApplication {
   def top = new MainFrame {
     title = "Image Editor"
     preferredSize = getDefaultToolkit.getScreenSize
-    private val pictureLabel = new ImageLabel ()
+    private val imageLabel = new ImageLabel(Image.DefaultFileName)
+    private val image = new Image(imageLabel, Image.DefaultFileName)
 
     contents = new FlowPanel {
-      contents += pictureLabel
-      contents += new ScrollPaneSelection().scrollPane
+      contents += imageLabel
+      contents += new ScrollPaneSelectionRectangular().scrollPane
+      contents += new ScrollPaneSelectionSelection().scrollPane
+      contents += new ScrollPaneSelectionLayer().scrollPane
     }
+
     menuBar = new MenuBar {
       contents += new Menu("File") {
         contents += new MenuItem(new Action("Open")
@@ -33,7 +34,7 @@ object Application extends SimpleSwingApplication {
               val result = chooser.showOpenDialog(null)
               if (result == FileChooser.Result.Approve) {
                 println(chooser.selectedFile)
-                pictureLabel.changeIcon(chooser.selectedFile.getAbsolutePath)
+                image.changeIcon(chooser.selectedFile.getAbsolutePath)
               }
             }
           })
