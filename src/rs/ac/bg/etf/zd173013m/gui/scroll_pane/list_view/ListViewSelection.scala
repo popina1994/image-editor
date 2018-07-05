@@ -19,18 +19,20 @@ import scala.swing.{Dimension, ListView}
             item.active = contains
         }
       }
+
     }
+    var curInit = false
 
     reactions += {
       case SelectionChanged(z) =>
       {
-        if (listener != null)
-          {
+        listenerOpt match {
+          case Some(listener) =>{
             listChanged(this.selection.items)
             listener.onSelected()
           }
+        }
       }
     }
-    var listener: ListViewListener = null
-
+    var listenerOpt: Option[ListViewListener] = None
 }

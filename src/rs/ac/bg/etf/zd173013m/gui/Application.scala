@@ -8,6 +8,7 @@ import rs.ac.bg.etf.zd173013m.gui.scroll_pane.{ScrollPaneSelectionLayer, ScrollP
 import rs.ac.bg.etf.zd173013m.logic.Image
 
 import scala.swing._
+import scala.swing.event.ButtonClicked
 
 object Application extends SimpleSwingApplication {
   def top = new MainFrame {
@@ -15,12 +16,35 @@ object Application extends SimpleSwingApplication {
     preferredSize = getDefaultToolkit.getScreenSize
     private val imageLabel = new ImageLabel(Image.DefaultFileName)
     private val scrollPaneSelectionRectangular = new ScrollPaneSelectionRectangular()
+    private val scrollPaneSelectionSelection= new ScrollPaneSelectionSelection()
     private val image = new Image(imageLabel, Image.DefaultFileName, scrollPaneSelectionRectangular)
 
     contents = new FlowPanel {
       contents += imageLabel
-      contents += scrollPaneSelectionRectangular.scrollPane
-      contents += new ScrollPaneSelectionSelection().scrollPane
+      contents += new BoxPanel(Orientation.Vertical) {
+        hGap = 3
+        vGap = 3
+        contents += scrollPaneSelectionRectangular.scrollPane
+        contents += new Button {
+          text = "Delete"
+          reactions += {
+            case ButtonClicked(_) => scrollPaneSelectionRectangular.deleteSelected()
+          }
+          preferredSize = new Dimension(20, 30)
+        }
+      }
+      contents += new BoxPanel(Orientation.Vertical) {
+        hGap = 3
+        vGap = 3
+        contents += scrollPaneSelectionSelection.scrollPane
+        contents += new Button {
+          text = "Delete"
+          reactions += {
+            case ButtonClicked(_) => scrollPaneSelectionSelection.deleteSelected()
+          }
+          preferredSize = new Dimension(20, 30)
+        }
+      }
       contents += new ScrollPaneSelectionLayer().scrollPane
     }
 

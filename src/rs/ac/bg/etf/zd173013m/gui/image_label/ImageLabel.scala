@@ -5,23 +5,34 @@ import javax.swing.ImageIcon
 import scala.swing.event.{MouseDragged, MousePressed, MouseReleased}
 import scala.swing.{Label, Point}
 
-class ImageLabel(var iconName: String, var listener: ImageLabelListener) extends Label {
+class ImageLabel(var iconName: String, var listenerOpt: Option[ImageLabelListener]) extends Label {
   icon = new ImageIcon(iconName)
-  def this(iconName: String)= this(iconName, null)
+  def this(iconName: String)= this(iconName, None)
 
   listenTo(mouse.clicks, mouse.moves)
   reactions += {
     case MousePressed(_, point, _,_, _) => {
-      listener.onMouseClick(point)
+      listenerOpt match {
+        case Some(listener) => listener.onMouseClick(point)
+        case None =>
+      }
       println("Pritisnuo misa")
     }
     case MouseReleased(_, point, _, _, _) => {
       println("Pustio misa")
-      listener.onMouseRelease(point)
+      listenerOpt match {
+        case Some(listener) => listener.onMouseRelease(point)
+        case None =>
+      }
+
     }
     case MouseDragged(_, point, _) => {
       println("Povukao misa")
-      listener.onMouseDrag(point)
+      listenerOpt match {
+        case Some(listener) => listener.onMouseDrag(point)
+        case None =>
+      }
+
     }
   }
 }

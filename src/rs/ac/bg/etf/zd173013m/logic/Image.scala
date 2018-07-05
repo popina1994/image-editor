@@ -14,24 +14,24 @@ import scala.swing.Point
 class Image (var imageLabel: ImageLabel, var iconPath: String,
              var scrollPaneSelectionRectangular: ScrollPaneSelectionRectangular)
             extends ImageLabelListener with  ListViewListener{
-  imageLabel.listener = this
-  scrollPaneSelectionRectangular.listViewSelection.listener = this
-  var rectangle: Rectangle = new Rectangle(
+  imageLabel.listenerOpt = Option(this)
+  scrollPaneSelectionRectangular.listViewSelection.listenerOpt = Option(this)
+  var curRectangle: Rectangle = new Rectangle(
                               new Point(0,0),
                               new Point(imageLabel.icon.getIconWidth, imageLabel.icon.getIconHeight))
 
-  var bufferedImage: BufferedImage = null
+
 
   private def updateImage() = {
     var icon = new ImageIcon(iconPath)
-    bufferedImage = new BufferedImage(icon.getIconWidth, icon.getIconHeight, BufferedImage.TYPE_INT_ARGB)
+    val bufferedImage = new BufferedImage(icon.getIconWidth, icon.getIconHeight, BufferedImage.TYPE_INT_ARGB)
     val graphics = bufferedImage.createGraphics()
     icon.paintIcon(null, graphics, 0, 0)
     val rectColor = new Color(0, 0, 255, 255)
     graphics.setColor(rectColor)
-    // TODO: Understand this line
+    // TODO: Understand this lineџ
     graphics.setComposite(AlphaComposite.Src)
-    rectangle.order()
+    curRectangle.order()
 
     def drawRectangle(rect: Rectangle)={
       graphics.drawRect(rect.leftTop.x, rect.leftTop.y,rect.rightBottom.x - rect.leftTop.x,
@@ -39,15 +39,11 @@ class Image (var imageLabel: ImageLabel, var iconPath: String,
     }
 
     def drawActiveRectangles()=
-      for (it <- scrollPaneSelectionRectangular.listSelections
-        if it.active)
-        {
-          val sel: SelectionRectangular = it.asInstanceOf[SelectionRectangular]
-          drawRectangle(sel.rectangle)
-        }
+      for (it <- scrollPaneSelectionRectangular.vectorSelections
+        if it.active) drawRectangle(it.rectangle)
 
     icon = new ImageIcon(bufferedImage)
-    drawRectangle(rectangle)
+    drawRectangle(curRectangle)
     drawActiveRectangles()
     graphics.dispose()
     imageLabel.icon = icon
@@ -55,31 +51,32 @@ class Image (var imageLabel: ImageLabel, var iconPath: String,
 
   def changeIcon(iconPath: String) = {
     this.iconPath = iconPath
-    rectangle.leftTop = new Point(0, 0)
-    rectangle.rightBottom = new Point(imageLabel.icon.getIconWidth, imageLabel.icon.getIconHeight)
+    curRectangle.leftTop = new Point(0, 0)
+    curRectangle.rightBottom = new Point(imageLabel.icon.getIconWidth, imageLabel.icon.getIconHeight)
     updateImage()
   }
 
   override def onMouseClick(point: Point): Unit =
     {
-      rectangle.leftTop = point
+      curRectangle.leftTop = point
       updateImage()
     }
 
   override def onMouseDrag(point: Point): Unit =
     {
-      rectangle.rightBottom = point
+      curRectangle.rightBottom = point
       updateImage()
     }
 
   override def onMouseRelease(point: Point): Unit =
     {
-      rectangle.rightBottom = point
-
+      curRectangle.rightBottom = point
       val selection: SelectionRectangular =
-        scrollPaneSelectionRectangular.addNewSelection().asInstanceOf[SelectionRectangular]
-      selection.rectangle = rectangle
-      rectangle = new Rectangle(new Point(0, 0), new Point(imageLabel.icon.getIconWidth, imageLabel.icon.getIconHeight))
+        scrollPaneSelectionRectangular.addNewSelection(None)
+      selection.rectangle = curRectangle
+      scrollPaneSelectionRectangular.selectLast
+      curRectangle = new Rectangle(new Point(0, 0), new Point(imageLabel.icon.getIconWidth, imageLabel.icon.getIconHeight))
+
       updateImage()
     }
 
