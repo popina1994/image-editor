@@ -31,6 +31,5 @@ class ScrollPaneSelectionRectangular extends ScrollPaneSelection {
   {
     _listSelections = arrayBuffer.asInstanceOf[ArrayBuffer[Selection]]
     listViewSelection.listData = _listSelections
-
   }
 }

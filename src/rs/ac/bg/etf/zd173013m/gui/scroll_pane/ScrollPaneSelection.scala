@@ -38,6 +38,7 @@ abstract class ScrollPaneSelection() {
     return _listSelections.last
   }
 
+  /* This method exists because of cleaner code */
   def vectorSelections(): Vector[Selection] = {
     return _listSelections.toVector
   }
@@ -53,7 +54,7 @@ abstract class ScrollPaneSelection() {
     for (it <- _listSelections)
       {
         it.active = true
-        //listViewSelection.selectIndices(List(idx))
+        //listViewSelection.selectIndices(Array(idx))
       }
   }
 
@@ -62,7 +63,6 @@ abstract class ScrollPaneSelection() {
     _listSelections --= _listSelections.filter((s: Selection)=> s.active)
     listViewSelection.listData = _listSelections
   }
-
 
   def generateNewData() = {
     _listSelections = new ArrayBuffer[Selection]()
