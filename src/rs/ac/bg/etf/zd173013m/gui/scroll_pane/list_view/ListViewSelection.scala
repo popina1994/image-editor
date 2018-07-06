@@ -13,24 +13,27 @@ import scala.swing.{Dimension, ListView}
     listenTo(this.selection)
 
     def listChanged(seq: Seq[Selection]): Unit = {
-      for (item <- items) {
+      for (item <- listData) {
         val contains = seq.contains(item)
         if (item.active != contains) {
             item.active = contains
         }
       }
-
     }
-    var curInit = false
+    var curVar: Boolean = true
 
     reactions += {
       case SelectionChanged(z) =>
       {
         listenerOpt match {
           case Some(listener) =>{
-            listChanged(this.selection.items)
-            listener.onSelected()
+            if (curVar){
+              listChanged(this.selection.items)
+              listener.onSelected()
+            }
+            curVar = !curVar
           }
+          case None => println("Nema listener")
         }
       }
     }

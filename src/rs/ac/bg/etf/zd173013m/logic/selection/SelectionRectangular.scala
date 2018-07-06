@@ -13,7 +13,7 @@ object SelectionRectangular {
   var id: Int = 0
   def generateId(): Int=
   {
-    id -=1
+    id +=1
     return id
   }
 }

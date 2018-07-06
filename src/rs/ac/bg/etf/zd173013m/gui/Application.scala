@@ -5,7 +5,7 @@ import java.io.File
 
 import rs.ac.bg.etf.zd173013m.gui.image_label.ImageLabel
 import rs.ac.bg.etf.zd173013m.gui.scroll_pane.{ScrollPaneSelectionLayer, ScrollPaneSelectionRectangular, ScrollPaneSelectionSelection}
-import rs.ac.bg.etf.zd173013m.logic.Image
+import rs.ac.bg.etf.zd173013m.logic.{Image, SelectionLogic}
 
 import scala.swing._
 import scala.swing.event.ButtonClicked
@@ -18,6 +18,7 @@ object Application extends SimpleSwingApplication {
     private val scrollPaneSelectionRectangular = new ScrollPaneSelectionRectangular()
     private val scrollPaneSelectionSelection= new ScrollPaneSelectionSelection()
     private val image = new Image(imageLabel, Image.DefaultFileName, scrollPaneSelectionRectangular)
+    private val selectionLogic = new SelectionLogic(image, scrollPaneSelectionSelection, scrollPaneSelectionRectangular)
 
     contents = new FlowPanel {
       contents += imageLabel
@@ -28,7 +29,7 @@ object Application extends SimpleSwingApplication {
         contents += new Button {
           text = "Delete"
           reactions += {
-            case ButtonClicked(_) => scrollPaneSelectionRectangular.deleteSelected()
+            case ButtonClicked(_) => image.deleteSelected()
           }
           preferredSize = new Dimension(20, 30)
         }
@@ -41,6 +42,14 @@ object Application extends SimpleSwingApplication {
           text = "Delete"
           reactions += {
             case ButtonClicked(_) => scrollPaneSelectionSelection.deleteSelected()
+          }
+          preferredSize = new Dimension(20, 30)
+        }
+        contents += new Button {
+          text = "New"
+          reactions += {
+            case ButtonClicked(_) => selectionLogic.newSelection(None)
+                                  println("Created new selection")
           }
           preferredSize = new Dimension(20, 30)
         }

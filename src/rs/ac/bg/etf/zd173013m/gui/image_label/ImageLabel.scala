@@ -16,10 +16,8 @@ class ImageLabel(var iconName: String, var listenerOpt: Option[ImageLabelListene
         case Some(listener) => listener.onMouseClick(point)
         case None =>
       }
-      println("Pritisnuo misa")
     }
     case MouseReleased(_, point, _, _, _) => {
-      println("Pustio misa")
       listenerOpt match {
         case Some(listener) => listener.onMouseRelease(point)
         case None =>
@@ -27,7 +25,6 @@ class ImageLabel(var iconName: String, var listenerOpt: Option[ImageLabelListene
 
     }
     case MouseDragged(_, point, _) => {
-      println("Povukao misa")
       listenerOpt match {
         case Some(listener) => listener.onMouseDrag(point)
         case None =>

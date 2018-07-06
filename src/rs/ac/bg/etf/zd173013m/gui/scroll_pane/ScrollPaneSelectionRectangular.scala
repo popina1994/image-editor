@@ -22,4 +22,15 @@ class ScrollPaneSelectionRectangular extends ScrollPaneSelection {
   override  def vectorSelections(): Vector[SelectionRectangular] = {
     return super.vectorSelections.asInstanceOf[Vector[SelectionRectangular]]
   }
+
+  def getRectSelections(): ArrayBuffer[SelectionRectangular] = {
+    return _listSelections.asInstanceOf[ArrayBuffer[SelectionRectangular]]
+  }
+
+  def replaceSelection(arrayBuffer: ArrayBuffer[SelectionRectangular]) =
+  {
+    _listSelections = arrayBuffer.asInstanceOf[ArrayBuffer[Selection]]
+    listViewSelection.listData = _listSelections
+
+  }
 }

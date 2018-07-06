@@ -9,6 +9,7 @@ import rs.ac.bg.etf.zd173013m.gui.scroll_pane.ScrollPaneSelectionRectangular
 import rs.ac.bg.etf.zd173013m.gui.scroll_pane.list_view.ListViewListener
 import rs.ac.bg.etf.zd173013m.logic.selection.SelectionRectangular
 
+import scala.collection.mutable.ArrayBuffer
 import scala.swing.Point
 
 class Image (var imageLabel: ImageLabel, var iconPath: String,
@@ -20,8 +21,6 @@ class Image (var imageLabel: ImageLabel, var iconPath: String,
                               new Point(0,0),
                               new Point(imageLabel.icon.getIconWidth, imageLabel.icon.getIconHeight))
 
-
-
   private def updateImage() = {
     var icon = new ImageIcon(iconPath)
     val bufferedImage = new BufferedImage(icon.getIconWidth, icon.getIconHeight, BufferedImage.TYPE_INT_ARGB)
@@ -29,7 +28,7 @@ class Image (var imageLabel: ImageLabel, var iconPath: String,
     icon.paintIcon(null, graphics, 0, 0)
     val rectColor = new Color(0, 0, 255, 255)
     graphics.setColor(rectColor)
-    // TODO: Understand this lineџ
+    // TODO: Understand this line
     graphics.setComposite(AlphaComposite.Src)
     curRectangle.order()
 
@@ -56,6 +55,11 @@ class Image (var imageLabel: ImageLabel, var iconPath: String,
     updateImage()
   }
 
+  def replaceSelections(arrayBuffer: ArrayBuffer[SelectionRectangular]) = {
+    scrollPaneSelectionRectangular.replaceSelection(arrayBuffer)
+    updateImage()
+  }
+
   override def onMouseClick(point: Point): Unit =
     {
       curRectangle.leftTop = point
@@ -74,7 +78,7 @@ class Image (var imageLabel: ImageLabel, var iconPath: String,
       val selection: SelectionRectangular =
         scrollPaneSelectionRectangular.addNewSelection(None)
       selection.rectangle = curRectangle
-      scrollPaneSelectionRectangular.selectLast
+      scrollPaneSelectionRectangular.selectLast()
       curRectangle = new Rectangle(new Point(0, 0), new Point(imageLabel.icon.getIconWidth, imageLabel.icon.getIconHeight))
 
       updateImage()
@@ -83,6 +87,11 @@ class Image (var imageLabel: ImageLabel, var iconPath: String,
   override def onSelected(): Unit = updateImage()
 
   override def onUnselected(): Unit = updateImage()
+
+   def deleteSelected(): Unit = {
+     scrollPaneSelectionRectangular.deleteSelected()
+     updateImage()
+   }
 }
 
 object Image{

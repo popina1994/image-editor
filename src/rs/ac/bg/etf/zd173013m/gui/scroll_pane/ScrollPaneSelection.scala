@@ -11,7 +11,6 @@ import scala.swing.{Dimension, ListView, ScrollPane}
 
 abstract class ScrollPaneSelection() {
 
-  // TODO: Rethink what to add to case class
   protected[this]var _listSelections: ArrayBuffer[Selection] = new ArrayBuffer[Selection]()
   var listViewSelection: ListViewSelection = new ListViewSelection(_listSelections)
 
@@ -20,13 +19,21 @@ abstract class ScrollPaneSelection() {
 
   def scrollPane = _scrollPane
   protected def createSelection(nameOpt: Option[String]): Selection
-  def addNewSelection(name: Option[String]): Selection=
+
+  protected def addSelectionToListView(selection: Selection): Unit =
   {
-    val selection = createSelection(None)
     _listSelections += selection
     // TODO: Maybe optimization?
     // This is only used because refresh does not work.
     listViewSelection.listData = _listSelections
+  }
+
+  def addNewSelection(name: Option[String]): Selection=
+  {
+    val selection = createSelection(None)
+    // TODO: Maybe optimization?
+    // This is only used because refresh does not work.
+    addSelectionToListView(selection)
 
     return _listSelections.last
   }
@@ -41,11 +48,24 @@ abstract class ScrollPaneSelection() {
     listViewSelection.selectIndices(_listSelections.length - 1)
   }
 
+  def selectAll(): Unit = {
+    var idx = 0
+    for (it <- _listSelections)
+      {
+        it.active = true
+        //listViewSelection.selectIndices(List(idx))
+      }
+  }
+
   def deleteSelected()=
   {
-    _listSelections = _listSelections.filterNot((s: Selection)=> s.active)
+    _listSelections --= _listSelections.filter((s: Selection)=> s.active)
     listViewSelection.listData = _listSelections
   }
 
 
+  def generateNewData() = {
+    _listSelections = new ArrayBuffer[Selection]()
+    listViewSelection.listData = _listSelections
+  }
 }
