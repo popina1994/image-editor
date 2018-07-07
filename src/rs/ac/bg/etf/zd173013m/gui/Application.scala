@@ -11,7 +11,7 @@ import rs.ac.bg.etf.zd173013m.logic.operation.OperationsLogic
 import rs.ac.bg.etf.zd173013m.logic.selection.SelectionLogic
 
 import scala.swing._
-import scala.swing.event.ButtonClicked
+import scala.swing.event.{ButtonClicked, ColorChanged}
 
 object Application extends SimpleSwingApplication {
   def top = new MainFrame {
@@ -67,16 +67,40 @@ object Application extends SimpleSwingApplication {
       }
       contents += new ScrollPaneSelectionLayer().scrollPane
       contents += new BoxPanel(Orientation.Vertical) {
+        hGap = 3
+        vGap = 3
         contents ++= buttonGroupOperations.buttons
-        contents += new Button {
-          text = "Apply"
+        val textFieldArg1 = new TextField() {
+          preferredSize = new Dimension(30, 30)
+        }
+        var chosenColor: Option[Color] = None
+        val colorChooser = new ColorChooser {
           reactions += {
-            case ButtonClicked(_) => operationsLogic.executeSelectedOperation()
-              }
-              println("Applied operation")
-
+            case ColorChanged(_, c) =>
+              chosenColor = Option(c)
           }
         }
+
+        contents += new Button {
+          text = "Apply"
+          def isEmpty(x: String) = x == null || x.trim.isEmpty
+
+          reactions += {
+              case ButtonClicked(_) =>
+                textFieldArg1.text match {
+                    // TODO: Checks, dialogs...
+                  case arg1 if isEmpty(arg1) => operationsLogic.executeSelectedOperation(None, chosenColor)
+                  case arg1 => operationsLogic.executeSelectedOperation(Option(arg1), chosenColor)
+                }
+          }
+          println("Applied operation")
+        }
+        contents += new BoxPanel(Orientation.Horizontal) {
+          contents += new Label("First arg:")
+          contents += textFieldArg1
+        }
+        contents +=  colorChooser
+      }
     }
 
     menuBar = new MenuBar {

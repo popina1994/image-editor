@@ -22,6 +22,8 @@ class Image(iconPath: String) {
 
   def getRGBA(row: Int, col: Int) : (Int, Int, Int, Int) = return (getR(row, col), getG(row, col), getB(row, col), getA(row, col))
 
+  def getRGBADouble(row: Int, col: Int) : (Double, Double, Double, Double) =
+    return (getR(row, col) / 256.0, getG(row, col) / 256.0, getB(row, col) / 256.0, getA(row, col) / 256.0)
 
   def setA(row: Int, col: Int, pixel: Int) = pixels(idx(row, col)) = (pixels(idx(row, col)) & (~(0xff << 24))) | (pixel << 24)
 
@@ -34,30 +36,17 @@ class Image(iconPath: String) {
     pixels(idx(row, col)) = (pixels(idx(row, col)) & (~(0xff))) | pixel
 
   def setRGBA(row: Int, col: Int, rgba: (Int, Int, Int, Int)) = {
-    var mA = getA(row, col)
-    var mR = getR(row, col)
-    var mG = getG(row, col)
-    var mB = getB(row, col)
     setR(row, col, rgba._1)
-    mA = getA(row, col)
-    mR = getR(row, col)
-    mG = getG(row, col)
-    mB = getB(row, col)
     setG(row, col, rgba._2)
-    mA = getA(row, col)
-    mR = getR(row, col)
-    mG = getG(row, col)
-    mB = getB(row, col)
     setB(row, col, rgba._3)
-    mA = getA(row, col)
-    mR = getR(row, col)
-    mG = getG(row, col)
-    mB = getB(row, col)
     setA(row, col, rgba._4)
-    mA = getA(row, col)
-    mR = getR(row, col)
-    mG = getG(row, col)
-    mB = getB(row, col)
+  }
+
+  def setRGBADouble(row: Int, col: Int, rgba: (Double, Double, Double, Double)) = {
+    setR(row, col, (rgba._1 * 256).toInt)
+    setG(row, col, (rgba._2 * 256).toInt)
+    setB(row, col, (rgba._3 * 256).toInt)
+    setA(row, col, (rgba._4 * 256).toInt)
   }
 
 }

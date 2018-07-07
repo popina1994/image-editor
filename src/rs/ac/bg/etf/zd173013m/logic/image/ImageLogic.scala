@@ -30,15 +30,14 @@ class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
   private [this] var expressionCached = false
 
   private def updateImage() = {
-    def applyOperations():Image = {
+    def applyOperations() = {
       val imageTmp = new Image(iconPath)
       for (row <- 0 until image.icon.getIconHeight; col <- 0 until image.icon.getIconWidth) {
-        val exp = expression.calculate(image, row, col)
-        imageTmp.setRGBA(row, col, exp)
+        val exp = expression.calculate(imageTmp, row, col)
+        image.setRGBADouble(row, col, exp)
       }
-      return imageTmp
     }
-    image = applyOperations()
+    applyOperations()
 
     val bufferedImage = new BufferedImage(image.icon.getIconWidth, image.icon.getIconHeight, BufferedImage.TYPE_INT_ARGB)
     bufferedImage.setRGB(0, 0, image.icon.getIconWidth, image.icon.getIconHeight,
