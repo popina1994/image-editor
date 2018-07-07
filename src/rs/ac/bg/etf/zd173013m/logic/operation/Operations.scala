@@ -1,4 +1,6 @@
-package rs.ac.bg.etf.zd173013m.logic
+package rs.ac.bg.etf.zd173013m.logic.operation
+
+import rs.ac.bg.etf.zd173013m.logic.image.Image
 
 object Operations {
 
@@ -24,10 +26,11 @@ object Operations {
       case (_) => Div(this, that)
     }
 
-    def unary_! : Int = {
-      return 0
+    // TODO: Replace with partially applied function.
+    def calculate(image: Image, row: Int, col: Int) : (Int, Int, Int, Int) = this match {
+      case Var("_this") => return image.getRGBA(row, col)
+      case (_) => println("Ostalo");return (1, 1, 1, 1)
     }
-
   }
 
   case class Var(name: String) extends Expression {

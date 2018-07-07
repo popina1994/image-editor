@@ -1,6 +1,6 @@
 package rs.ac.bg.etf.zd173013m.gui.radio_operations
 
-import rs.ac.bg.etf.zd173013m.logic.Operations.Expression
+import rs.ac.bg.etf.zd173013m.logic.operation.Operations.Expression
 
 import scala.swing.RadioButton
 

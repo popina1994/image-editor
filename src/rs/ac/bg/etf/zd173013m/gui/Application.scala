@@ -6,7 +6,9 @@ import java.io.File
 import rs.ac.bg.etf.zd173013m.gui.image_label.ImageLabel
 import rs.ac.bg.etf.zd173013m.gui.radio_operations.ButtonGroupOperations
 import rs.ac.bg.etf.zd173013m.gui.scroll_pane.{ScrollPaneSelectionLayer, ScrollPaneSelectionRectangular, ScrollPaneSelectionSelection}
-import rs.ac.bg.etf.zd173013m.logic.{Image, OperationsLogic, SelectionLogic}
+import rs.ac.bg.etf.zd173013m.logic.image.ImageLogic
+import rs.ac.bg.etf.zd173013m.logic.operation.OperationsLogic
+import rs.ac.bg.etf.zd173013m.logic.selection.SelectionLogic
 
 import scala.swing._
 import scala.swing.event.ButtonClicked
@@ -15,13 +17,14 @@ object Application extends SimpleSwingApplication {
   def top = new MainFrame {
     title = "Image Editor"
     preferredSize = getDefaultToolkit.getScreenSize
-    private val imageLabel = new ImageLabel(Image.DefaultFileName)
+    private val imageLabel = new ImageLabel(ImageLogic.DefaultFileName)
     private val scrollPaneSelectionRectangular = new ScrollPaneSelectionRectangular()
     private val scrollPaneSelectionSelection= new ScrollPaneSelectionSelection()
-    private val image = new Image(imageLabel, Image.DefaultFileName, scrollPaneSelectionRectangular)
-    private val selectionLogic = new SelectionLogic(image, scrollPaneSelectionSelection, scrollPaneSelectionRectangular)
+    private val imageLogic = new ImageLogic(imageLabel, ImageLogic.DefaultFileName, scrollPaneSelectionRectangular)
+    private val selectionLogic = new SelectionLogic(imageLogic, scrollPaneSelectionSelection, scrollPaneSelectionRectangular)
     private val buttonGroupOperations = new ButtonGroupOperations
     private val operationsLogic = new OperationsLogic(buttonGroupOperations)
+    operationsLogic.listenerOpt = Option(imageLogic)
 
     contents = new FlowPanel {
       contents += imageLabel
@@ -32,7 +35,7 @@ object Application extends SimpleSwingApplication {
         contents += new Button {
           text = "Delete"
           reactions += {
-            case ButtonClicked(_) => image.deleteSelected()
+            case ButtonClicked(_) => imageLogic.deleteSelected()
           }
           preferredSize = new Dimension(20, 30)
         }
@@ -87,7 +90,7 @@ object Application extends SimpleSwingApplication {
               val result = chooser.showOpenDialog(null)
               if (result == FileChooser.Result.Approve) {
                 println(chooser.selectedFile)
-                image.changeIcon(chooser.selectedFile.getAbsolutePath)
+                imageLogic.changeIcon(chooser.selectedFile.getAbsolutePath)
               }
             }
           })

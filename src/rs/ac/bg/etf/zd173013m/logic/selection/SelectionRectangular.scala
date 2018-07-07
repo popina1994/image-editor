@@ -1,6 +1,6 @@
 package rs.ac.bg.etf.zd173013m.logic.selection
 
-import rs.ac.bg.etf.zd173013m.logic.Rectangle
+import rs.ac.bg.etf.zd173013m.logic.image.Rectangle
 
 import scala.swing.Point
 

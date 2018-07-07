@@ -1,36 +1,59 @@
-package rs.ac.bg.etf.zd173013m.logic
+package rs.ac.bg.etf.zd173013m.logic.image
 
-import java.awt.{AlphaComposite, Color}
 import java.awt.image.BufferedImage
+import java.awt.{AlphaComposite, Color}
+import java.text.SimpleDateFormat
+import java.util.Date
 
 import javax.swing.ImageIcon
 import rs.ac.bg.etf.zd173013m.gui.image_label.{ImageLabel, ImageLabelListener}
 import rs.ac.bg.etf.zd173013m.gui.scroll_pane.ScrollPaneSelectionRectangular
 import rs.ac.bg.etf.zd173013m.gui.scroll_pane.list_view.ListViewListener
+import rs.ac.bg.etf.zd173013m.logic.operation.Operations.{Expression, Var}
+import rs.ac.bg.etf.zd173013m.logic.operation.OperationsListener
 import rs.ac.bg.etf.zd173013m.logic.selection.SelectionRectangular
 
 import scala.collection.mutable.ArrayBuffer
 import scala.swing.Point
 
-class Image (var imageLabel: ImageLabel, var iconPath: String,
-             var scrollPaneSelectionRectangular: ScrollPaneSelectionRectangular)
-            extends ImageLabelListener with  ListViewListener{
+class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
+                 var scrollPaneSelectionRectangular: ScrollPaneSelectionRectangular)
+            extends ImageLabelListener with  ListViewListener with OperationsListener {
+  var image: Image = new Image(iconPath)
   imageLabel.listenerOpt = Option(this)
   scrollPaneSelectionRectangular.listViewSelection.listenerOpt = Option(this)
   var curRectangle: Rectangle = new Rectangle(
                               new Point(0,0),
-                              new Point(imageLabel.icon.getIconWidth, imageLabel.icon.getIconHeight))
+                              new Point(image.icon.getIconWidth-1, image.icon.getIconHeight-1))
+
+  private [this]var expression: Expression = Var("_this")
+  private [this] var expressionCached = false
 
   private def updateImage() = {
-    var icon = new ImageIcon(iconPath)
-    val bufferedImage = new BufferedImage(icon.getIconWidth, icon.getIconHeight, BufferedImage.TYPE_INT_ARGB)
+    def applyOperations():Image = {
+      val imageTmp = new Image(iconPath)
+      for (row <- 0 until image.icon.getIconHeight; col <- 0 until image.icon.getIconWidth) {
+        val exp = expression.calculate(image, row, col)
+        imageTmp.setRGBA(row, col, exp)
+      }
+      return imageTmp
+    }
+    image = applyOperations()
+
+    val bufferedImage = new BufferedImage(image.icon.getIconWidth, image.icon.getIconHeight, BufferedImage.TYPE_INT_ARGB)
+    bufferedImage.setRGB(0, 0, image.icon.getIconWidth, image.icon.getIconHeight,
+                         image.pixels, 0, image.icon.getIconWidth)
     val graphics = bufferedImage.createGraphics()
-    icon.paintIcon(null, graphics, 0, 0)
     val rectColor = new Color(0, 0, 255, 255)
     graphics.setColor(rectColor)
     // TODO: Understand this line
-    graphics.setComposite(AlphaComposite.Src)
+    //graphics.setComposite(AlphaComposite.Src)
     curRectangle.order()
+
+    drawRectangle(curRectangle)
+    drawActiveRectangles()
+
+    graphics.dispose()
 
     def drawRectangle(rect: Rectangle)={
       graphics.drawRect(rect.leftTop.x, rect.leftTop.y,rect.rightBottom.x - rect.leftTop.x,
@@ -39,19 +62,16 @@ class Image (var imageLabel: ImageLabel, var iconPath: String,
 
     def drawActiveRectangles()=
       for (it <- scrollPaneSelectionRectangular.vectorSelections
-        if it.active) drawRectangle(it.rectangle)
+           if it.active) drawRectangle(it.rectangle)
 
-    icon = new ImageIcon(bufferedImage)
-    drawRectangle(curRectangle)
-    drawActiveRectangles()
-    graphics.dispose()
-    imageLabel.icon = icon
+    imageLabel.icon = new ImageIcon(bufferedImage)
   }
 
   def changeIcon(iconPath: String) = {
     this.iconPath = iconPath
+    image = new Image(iconPath)
     curRectangle.leftTop = new Point(0, 0)
-    curRectangle.rightBottom = new Point(imageLabel.icon.getIconWidth, imageLabel.icon.getIconHeight)
+    curRectangle.rightBottom = new Point(image.icon.getIconWidth - 1, image.icon.getIconHeight - 1)
     updateImage()
   }
 
@@ -79,7 +99,7 @@ class Image (var imageLabel: ImageLabel, var iconPath: String,
         scrollPaneSelectionRectangular.addNewSelection(None)
       selection.rectangle = curRectangle
       scrollPaneSelectionRectangular.selectLast()
-      curRectangle = new Rectangle(new Point(0, 0), new Point(imageLabel.icon.getIconWidth, imageLabel.icon.getIconHeight))
+      curRectangle = new Rectangle(new Point(0, 0), new Point(image.icon.getIconWidth, image.icon.getIconHeight))
 
       updateImage()
     }
@@ -92,8 +112,13 @@ class Image (var imageLabel: ImageLabel, var iconPath: String,
      scrollPaneSelectionRectangular.deleteSelected()
      updateImage()
    }
+
+  override def changedExpression(expression: Expression): Unit = {
+    this.expression = expression
+    updateImage()
+  }
 }
 
-object Image{
+object ImageLogic{
   val DefaultFileName = "C:/Users/popina/IdeaProjects/ImageEditor/assets/1.jpg"
 }

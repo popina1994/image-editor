@@ -1,4 +1,4 @@
-package rs.ac.bg.etf.zd173013m.logic
+package rs.ac.bg.etf.zd173013m.logic.image
 
 import scala.swing.Point
 

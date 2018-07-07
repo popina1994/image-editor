@@ -1,6 +1,6 @@
 package rs.ac.bg.etf.zd173013m.gui.radio_operations
 
-import rs.ac.bg.etf.zd173013m.logic.Operations.{Num, OperationMultiply, Var}
+import rs.ac.bg.etf.zd173013m.logic.operation.Operations.{Num, OperationMultiply, Var}
 
 import scala.swing.{ButtonGroup, RadioButton}
 
