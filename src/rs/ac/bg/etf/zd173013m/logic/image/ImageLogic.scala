@@ -19,7 +19,7 @@ import scala.swing.Point
 class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
                  var scrollPaneSelectionRectangular: ScrollPaneSelectionRectangular)
             extends ImageLabelListener with  ListViewListener with OperationsListener {
-  var image: Image = new Image(iconPath)
+  var image: Image = new Image(iconPath, scrollPaneSelectionRectangular.vectorSelections())
   imageLabel.listenerOpt = Option(this)
   scrollPaneSelectionRectangular.listViewSelection.listenerOpt = Option(this)
   var curRectangle: Rectangle = new Rectangle(
@@ -30,14 +30,17 @@ class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
   private [this] var expressionCached = false
 
   private def updateImage() = {
+    /*
     def applyOperations() = {
-      val imageTmp = new Image(iconPath)
+      //val imageTmp = new Image(iconPath, scrollPaneSelectionRectangular.vectorSelections())
+
       for (row <- 0 until image.icon.getIconHeight; col <- 0 until image.icon.getIconWidth) {
         val exp = expression.calculate(imageTmp, row, col)
         image.setRGBADouble(row, col, exp)
       }
     }
-    applyOperations()
+    */
+    expression.calculateSelectedPixels(image)
 
     val bufferedImage = new BufferedImage(image.icon.getIconWidth, image.icon.getIconHeight, BufferedImage.TYPE_INT_ARGB)
     bufferedImage.setRGB(0, 0, image.icon.getIconWidth, image.icon.getIconHeight,
@@ -68,7 +71,7 @@ class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
 
   def changeIcon(iconPath: String) = {
     this.iconPath = iconPath
-    image = new Image(iconPath)
+    image = new Image(iconPath, scrollPaneSelectionRectangular.vectorSelections())
     curRectangle.leftTop = new Point(0, 0)
     curRectangle.rightBottom = new Point(image.icon.getIconWidth - 1, image.icon.getIconHeight - 1)
     updateImage()

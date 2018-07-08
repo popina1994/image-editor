@@ -97,6 +97,17 @@ class OperationsLogic (buttonGroupOperations: ButtonGroupOperations){
               case None =>
                 expr = OperationMax(expr, Num(1))
             }
+          case OperationInvertColor(_) =>
+            expr = OperationInvertColor(expr)
+          case OperationGrayScale(_) =>
+            expr = OperationGrayScale(expr)
+          case OperationMedian(_, _) =>
+            arg1 match {
+              case Some(value) =>
+                expr = OperationMedian(expr, value.toInt)
+              case None =>
+                expr = OperationMedian(expr, 1)
+            }
           case _ => println("Nema medju ponudjenim")
         }
         listenerOpt match {
