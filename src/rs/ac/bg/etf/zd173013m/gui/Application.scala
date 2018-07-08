@@ -70,8 +70,8 @@ object Application extends SimpleSwingApplication {
         hGap = 3
         vGap = 3
         contents ++= buttonGroupOperations.buttons
-        val textFieldArg1 = new TextField() {
-          preferredSize = new Dimension(30, 30)
+        val textFieldArg1 = new TextArea() {
+          preferredSize = new Dimension(30, 50)
         }
         var chosenColor: Option[Color] = None
         val colorChooser = new ColorChooser {

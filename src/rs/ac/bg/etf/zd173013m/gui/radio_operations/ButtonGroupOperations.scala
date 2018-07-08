@@ -20,6 +20,8 @@ class ButtonGroupOperations extends ButtonGroup {
   val buttonInvertColor = new RadioButtonOperation(OperationInvertColor(Var("this")), text ="Invert color")
   val buttonGrayScale = new RadioButtonOperation(OperationGrayScale(Var("this")), text ="GrayScale")
   val buttonMedian = new RadioButtonOperation(OperationMedian(Var("this"), 0), text ="Median value")
+  val buttonPond = new RadioButtonOperation(OperationPond(Var("this"), Array.ofDim[(Double, Double, Double)](1, 1)),
+                                          text ="Pond value")
 
 
   buttons += buttonMultiply
@@ -37,6 +39,7 @@ class ButtonGroupOperations extends ButtonGroup {
   buttons += buttonInvertColor
   buttons += buttonGrayScale
   buttons += buttonMedian
+  buttons += buttonPond
 
   def getSelected :Option[RadioButtonOperation]=
     selected match {

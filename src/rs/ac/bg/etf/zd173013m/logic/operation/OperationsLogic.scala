@@ -8,6 +8,24 @@ import scala.swing.Color
 class OperationsLogic (buttonGroupOperations: ButtonGroupOperations){
   var listenerOpt: Option[OperationsListener] = None
   var expr: Expression = new Var("_this")
+
+  private def convertStringToPonder(str : String) : Array[Array[(Double, Double, Double)]] = {
+    val length = str.count(_ == '\n')
+    val outputArray = Array.ofDim[(Double, Double, Double)](length, length)
+    var rowIdx = 0
+    for (row <- str.split("\n")) {
+      var colIdx = 0
+      for (col <- row.split(" ")) {
+        val components =  col.split(":")
+        outputArray(rowIdx)(colIdx) =
+            (components(0).trim.toDouble, components(1).trim.toDouble, components(2).trim.toDouble)
+        colIdx += 1
+      }
+      rowIdx += 1
+    }
+    return outputArray
+  }
+
   def executeSelectedOperation(arg1: Option[String], arg2: Option[Color]) = {
     buttonGroupOperations.getSelected match {
       case Some(operation) =>
@@ -107,6 +125,13 @@ class OperationsLogic (buttonGroupOperations: ButtonGroupOperations){
                 expr = OperationMedian(expr, value.toInt)
               case None =>
                 expr = OperationMedian(expr, 1)
+            }
+          case OperationPond(_, _) =>
+            arg1 match {
+              case Some(value) =>
+                expr = OperationPond(expr, convertStringToPonder(value))
+              case None =>
+                println("Error")
             }
           case _ => println("Nema medju ponudjenim")
         }

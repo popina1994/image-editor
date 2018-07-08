@@ -12,6 +12,11 @@ object Operations {
     // TODO: Replace with partially applied function.
     private def calculate(image: Image, row: Int, col: Int): (Double, Double, Double, Double) =
     {
+
+      def applyFunToOnlyRGB1(value: (Double, Double, Double, Double),
+                         fun: (Double)=> Double): (Double, Double, Double) =
+        return (fun(value._1), fun(value._2), fun(value._3))
+
       def applyFunToRGB1(value: (Double, Double, Double, Double),
                          fun: (Double)=> Double): (Double, Double, Double, Double) =
         return (fun(value._1), fun(value._2), fun(value._3), value._4)
@@ -21,6 +26,12 @@ object Operations {
       {
         val alpha = if (!inv) val1._4 else val2._4
         return (fun(val1._1, val2._1), fun(val1._2, val2._2), fun(val1._3, val2._3), alpha)
+      }
+
+      def applyFunOnlyToRGB2(val1: (Double, Double, Double), val2: (Double, Double, Double),
+                                       fun: (Double, Double)=> Double): (Double, Double, Double) =
+      {
+        return (fun(val1._1, val2._1), fun(val1._2, val2._2), fun(val1._3, val2._3))
       }
 
       def applyFunCurry1(image: Image, row: Int, col: Int)(exp: Expression)
@@ -51,11 +62,36 @@ object Operations {
             case None =>
             case Some(rgba) =>
               count += 1
-              sum = (rgba._1 + sum._1, rgba._2 + sum._2, rgba._3 + sum._3)
+              sum = applyFunOnlyToRGB2((rgba._1, rgba._2, rgba._3), sum, Singleton.operationAdd.func)
           }
         return (sum._1 / count, sum._2 / count, sum._3 / count, image.getRGBADouble(row, col)._4)
       }
 
+      def grayScale(exp: Expression) :(Double, Double, Double, Double)= {
+        val value = exp.calculate(image, row, col)
+        val avg = (value._1 + value._2 + value._3) / 3.0
+        return (avg,avg, avg, value._4)
+      }
+
+      def pond(expression: Expression, matrix: Array[Array[(Double, Double, Double)]]):(Double, Double, Double, Double)= {
+        val n = matrix.length / 2
+        var sum = (0.0, 0.0, 0.0)
+        var count = 0
+        val startRowIdx = row - n
+        val startColIdx = col - n
+        for (rowIdx <- row - n to row + n; colIdx <- col - n to col +n)
+          image.getRGBADoubleCheck(rowIdx, colIdx) match {
+            case None =>
+            case Some(rgba) =>
+              count += 1
+              val mulVal = applyFunOnlyToRGB2((rgba._1, rgba._2, rgba._3),
+                matrix(rowIdx - startRowIdx)(colIdx - startColIdx),
+                Singleton.operationMultiply.func)
+              sum = applyFunOnlyToRGB2(sum, mulVal, Singleton.operationAdd.func)
+          }
+        return (sum._1 / count, sum._2 / count, sum._3 / count, image.getRGBADouble(row, col)._4)
+
+      }
 
       if (evaluated) return image.getRGBADouble(row, col)
       this match {
@@ -91,16 +127,19 @@ object Operations {
         case OperationInvertColor(exp) =>
           return applyFun1(exp)(Singleton.operationInvertColor.func)
         case OperationGrayScale(exp) =>
-          val value = exp.calculate(image, row, col)
-          val avg = (value._1 + value._2 + value._3) / 3.0
-          return (avg,avg, avg, value._4)
+          return grayScale(exp)
         case OperationMedian(exp, n) =>
           if (!exp.evaluated)
           {
             evaluateAllSelected(image, exp)
           }
           return findMedian(n)
-
+        case OperationPond(exp, mat) =>
+          if (!exp.evaluated)
+            {
+              evaluateAllSelected(image, exp)
+            }
+          return pond(exp, mat)
         case (_) => println("Ostalo"); return (1, 1, 1, 1)
     }
    }
@@ -206,6 +245,10 @@ object Operations {
   }
 
   case class OperationMedian(e1: Expression, n: Int) extends Expression {
+  }
+
+  case class OperationPond(e: Expression, matrix: Array[Array[(Double, Double, Double)]]) extends Expression {
+
   }
 
   case class SeqOp(name: String, list: List[Expression]) extends Expression
