@@ -12,7 +12,9 @@ class Image(iconPath: String) {
   private[this] val g = bufferedImage.createGraphics()
   icon.paintIcon(null, g, 0, 0)
   g.dispose()
-  val pixels: Array[Int] = bufferedImage.getRaster.getDataBuffer.asInstanceOf[DataBufferInt].getData
+  var pixels: Array[Int] = bufferedImage.getRaster.getDataBuffer.asInstanceOf[DataBufferInt].getData
+  var tmpBuffer: Array[Int] = pixels.clone()
+
   def idx(row: Int, col: Int) = row * icon.getIconWidth + col
 
   def getA(row: Int, col: Int): Int = (pixels(idx(row, col)) >> 24) & 0xff;
@@ -23,7 +25,10 @@ class Image(iconPath: String) {
   def getRGBA(row: Int, col: Int) : (Int, Int, Int, Int) = return (getR(row, col), getG(row, col), getB(row, col), getA(row, col))
 
   def getRGBADouble(row: Int, col: Int) : (Double, Double, Double, Double) =
-    return (getR(row, col) / 256.0, getG(row, col) / 256.0, getB(row, col) / 256.0, getA(row, col) / 256.0)
+    return (getR(row, col) / Image.ComponentValues,
+            getG(row, col) / Image.ComponentValues,
+            getB(row, col) / Image.ComponentValues,
+            getA(row, col) / Image.ComponentValues)
 
   def setA(row: Int, col: Int, pixel: Int) = pixels(idx(row, col)) = (pixels(idx(row, col)) & (~(0xff << 24))) | (pixel << 24)
 
@@ -43,10 +48,13 @@ class Image(iconPath: String) {
   }
 
   def setRGBADouble(row: Int, col: Int, rgba: (Double, Double, Double, Double)) = {
-    setR(row, col, (rgba._1 * 256).toInt)
-    setG(row, col, (rgba._2 * 256).toInt)
-    setB(row, col, (rgba._3 * 256).toInt)
-    setA(row, col, (rgba._4 * 256).toInt)
+    setR(row, col, (rgba._1 * Image.ComponentValues).toInt)
+    setG(row, col, (rgba._2 * Image.ComponentValues).toInt)
+    setB(row, col, (rgba._3 * Image.ComponentValues).toInt)
+    setA(row, col, (rgba._4 * Image.ComponentValues).toInt)
   }
+}
 
+object Image {
+  val ComponentValues: Double = 256.0
 }
