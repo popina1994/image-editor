@@ -4,13 +4,13 @@ import java.awt.Toolkit._
 import java.io.File
 
 import rs.ac.bg.etf.zd173013m.gui.image_label.ImageLabel
-import rs.ac.bg.etf.zd173013m.gui.radio_operations.ButtonGroupOperations
+import rs.ac.bg.etf.zd173013m.gui.radio_operations.{BoxPanelOperationButtons, ButtonGroupOperations}
 import rs.ac.bg.etf.zd173013m.gui.scroll_pane.{ScrollPaneSelectionLayer, ScrollPaneSelectionRectangular, ScrollPaneSelectionSelection}
 import rs.ac.bg.etf.zd173013m.logic.image.ImageLogic
 import rs.ac.bg.etf.zd173013m.logic.operation.OperationsLogic
 import rs.ac.bg.etf.zd173013m.logic.selection.SelectionLogic
 
-import scala.swing._
+import scala.swing.{event, _}
 import scala.swing.event.{ButtonClicked, ColorChanged}
 
 object Application extends SimpleSwingApplication {
@@ -67,9 +67,9 @@ object Application extends SimpleSwingApplication {
       }
       contents += new ScrollPaneSelectionLayer().scrollPane
       contents += new BoxPanel(Orientation.Vertical) {
-        hGap = 3
-        vGap = 3
-        contents ++= buttonGroupOperations.buttons
+        val boxPanelOperationButtons = new  BoxPanelOperationButtons(Orientation.Vertical, buttonGroupOperations.buttons)
+        operationsLogic.listenersSeqOp += boxPanelOperationButtons
+        contents += boxPanelOperationButtons
         val textFieldArg1 = new TextArea() {
           preferredSize = new Dimension(30, 50)
         }
@@ -81,19 +81,55 @@ object Application extends SimpleSwingApplication {
           }
         }
 
-        contents += new Button {
-          text = "Apply"
-          def isEmpty(x: String) = x == null || x.trim.isEmpty
+        def isEmpty(x: String) = x == null || x.trim.isEmpty
+        contents += new BoxPanel(Orientation.Horizontal) {
+          contents += new Button {
+            text = "Apply"
 
-          reactions += {
+            reactions += {
               case ButtonClicked(_) =>
                 textFieldArg1.text match {
-                    // TODO: Checks, dialogs...
-                  case arg1 if isEmpty(arg1) => operationsLogic.executeSelectedOperation(None, chosenColor)
-                  case arg1 => operationsLogic.executeSelectedOperation(Option(arg1), chosenColor)
+                  // TODO: Checks, dialogs...
+                  case arg1 if isEmpty(arg1) => operationsLogic.executeSelectedOperations(None, chosenColor)
+                  case arg1 => operationsLogic.executeSelectedOperations(Option(arg1), chosenColor)
                 }
+            }
+            println("Applied operation")
           }
-          println("Applied operation")
+
+          val buttonNext = new Button {
+            text = "Next"
+            reactions += {
+              case ButtonClicked(_) =>
+                textFieldArg1.text match {
+                  case arg1 if isEmpty(arg1) => operationsLogic.saveSelectedOperations(None, chosenColor)
+                  case arg1 => operationsLogic.saveSelectedOperations(Option(arg1), chosenColor)
+                }
+            }
+            visible = false
+          }
+
+          contents += new Button {
+            var textId = 0
+            var saveOperation = false
+            val textArray = List("Record", "Stop")
+            text = "Record"
+            reactions += {
+              case ButtonClicked(_) =>
+                textId = (textId + 1) % textArray.length
+                buttonNext.visible = !buttonNext.visible
+                if (saveOperation)
+                {
+                  textFieldArg1.text match {
+                    case arg1 if isEmpty(arg1) => operationsLogic.createSequenceOperations(None)
+                    case arg1 => operationsLogic.createSequenceOperations(Option(arg1))
+                  }
+                }
+                saveOperation = !saveOperation
+                text = textArray(textId)
+            }
+          }
+          contents += buttonNext
         }
         contents += new BoxPanel(Orientation.Horizontal) {
           contents += new Label("First arg:")

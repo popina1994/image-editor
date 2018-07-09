@@ -251,7 +251,7 @@ object Operations {
 
   }
 
-  case class SeqOp(name: String, list: List[Expression]) extends Expression
+  case class OperationSequence(name: String, list: List[Expression]) extends Expression
   {
     override def toString:String = {
       var output: String = "list_" + name

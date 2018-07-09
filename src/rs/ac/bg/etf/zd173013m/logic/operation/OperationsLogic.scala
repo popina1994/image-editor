@@ -3,11 +3,16 @@ package rs.ac.bg.etf.zd173013m.logic.operation
 import rs.ac.bg.etf.zd173013m.gui.radio_operations.ButtonGroupOperations
 import rs.ac.bg.etf.zd173013m.logic.operation.Operations._
 
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.swing.Color
 
 class OperationsLogic (buttonGroupOperations: ButtonGroupOperations){
   var listenerOpt: Option[OperationsListener] = None
   var expr: Expression = new Var("_this")
+  var recordOperation = false
+  var listenersSeqOp: ListBuffer[OperationAddedListener] = ListBuffer()
+
+  private [this]var listSavedOperations: ListBuffer[Expression] = ListBuffer()
 
   private def convertStringToPonder(str : String) : Array[Array[(Double, Double, Double)]] = {
     val length = str.count(_ == '\n')
@@ -26,12 +31,33 @@ class OperationsLogic (buttonGroupOperations: ButtonGroupOperations){
     return outputArray
   }
 
-  def executeSelectedOperation(arg1: Option[String], arg2: Option[Color]) = {
+  def saveSelectedOperations(arg1: Option[String], arg2: Option[Color]): Unit = {
+    buttonGroupOperations.getSelected match {
+      case Some(operation) =>
+        listSavedOperations += operation.expression
+      case None =>
+        println("Nothing is selected")
+    }
+  }
+
+  def createSequenceOperations(arg: Option[String]): Unit = {
+    var realName = "1"
+    arg match {
+      case Some(name) =>
+          realName = name
+      case None =>
+    }
+    for (it <- listenersSeqOp)
+    {
+      it.operationAdded(realName, listSavedOperations.toList)
+    }
+  }
+
+  def executeSelectedOperations(arg1: Option[String], arg2: Option[Color]) = {
     buttonGroupOperations.getSelected match {
       case Some(operation) =>
         operation.expression match {
           case OperationMultiply(_, _) =>
-            // TODO: move this before this match
             arg1 match {
               case Some(value) =>
                 expr = OperationMultiply(expr, Num(value.toDouble))
