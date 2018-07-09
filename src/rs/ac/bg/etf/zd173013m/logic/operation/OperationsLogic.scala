@@ -172,7 +172,8 @@ class OperationsLogic (buttonGroupOperations: ButtonGroupOperations){
                 println("Error")
             }
 
-          case OperationSequence(_, _) =>
+          case OperationSequence(_, name, listOperations) =>
+            expr = OperationSequence(expr, name, listOperations)
           case _ => println("Nema medju ponudjenim")
         }
         listenerOpt match {

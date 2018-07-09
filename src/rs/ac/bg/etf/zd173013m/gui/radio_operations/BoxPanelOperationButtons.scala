@@ -7,11 +7,10 @@ import scala.collection.mutable
 import swing.{AbstractButton, BoxPanel, Orientation, RadioButton}
 
 class BoxPanelOperationButtons(orientation: Orientation.Value, buttons: mutable.Set[AbstractButton])
-  extends BoxPanel(orientation) with OperationAddedListener{
+  extends BoxPanel(orientation) with RadioButtonOperationAddedListener {
   contents ++= buttons
 
-  override def operationAdded(name: String, list: List[Operations.Expression]): Unit = {
-    val buttonOperation = new RadioButtonOperation(OperationSequence(name, list), text = name)
-    contents += buttonOperation
+  override def onRadioButtonAdded(button: RadioButtonOperation): Unit = {
+    contents += button
   }
 }

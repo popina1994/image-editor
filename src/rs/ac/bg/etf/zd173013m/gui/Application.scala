@@ -68,7 +68,8 @@ object Application extends SimpleSwingApplication {
       contents += new ScrollPaneSelectionLayer().scrollPane
       contents += new BoxPanel(Orientation.Vertical) {
         val boxPanelOperationButtons = new  BoxPanelOperationButtons(Orientation.Vertical, buttonGroupOperations.buttons)
-        operationsLogic.listenersSeqOp += boxPanelOperationButtons
+        buttonGroupOperations.listnerRadioButtonAdded = Option(boxPanelOperationButtons)
+        operationsLogic.listenersSeqOp += buttonGroupOperations
         contents += boxPanelOperationButtons
         val textFieldArg1 = new TextArea() {
           preferredSize = new Dimension(30, 50)

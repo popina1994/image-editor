@@ -140,6 +140,21 @@ object Operations {
               evaluateAllSelected(image, exp)
             }
           return pond(exp, mat)
+        case OperationSequence(exp, _, listOperations) =>
+          {
+            if (!exp.evaluated)
+            {
+              evaluateAllSelected(image, exp)
+            }
+            for (it <- listOperations)
+            {
+            if (!it.evaluated)
+              {
+                evaluateAllSelected(image, it)
+              }
+            }
+            return image.getRGBADouble(row, col)
+          }
         case (_) => println("Ostalo"); return (1, 1, 1, 1)
     }
    }
@@ -252,7 +267,7 @@ object Operations {
 
   }
 
-  case class OperationSequence(name: String, list: List[Expression]) extends Expression
+  case class OperationSequence(e: Expression, name: String, list: List[Expression]) extends Expression
   {
     override def toString:String = {
       var output: String = "list_" + name

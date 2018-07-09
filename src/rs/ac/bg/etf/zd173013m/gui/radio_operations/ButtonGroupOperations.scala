@@ -1,10 +1,11 @@
 package rs.ac.bg.etf.zd173013m.gui.radio_operations
 
+import rs.ac.bg.etf.zd173013m.logic.operation.OperationAddedListener
 import rs.ac.bg.etf.zd173013m.logic.operation.Operations._
 
 import scala.swing.{ButtonGroup, RadioButton}
 
-class ButtonGroupOperations extends ButtonGroup {
+class ButtonGroupOperations extends ButtonGroup with OperationAddedListener {
   val buttonMultiply = new RadioButtonOperation(OperationMultiply(Var("_this"), Num(1)), "Multiply")
   val buttonAdd = new RadioButtonOperation(OperationAdd(Var("this"), Num(value=1)), text="Addition")
   val buttonSub = new RadioButtonOperation(OperationSub(Var("this"), Num(value=0)), text ="Subtraction")
@@ -23,7 +24,7 @@ class ButtonGroupOperations extends ButtonGroup {
   val buttonPond = new RadioButtonOperation(OperationPond(Var("this"), Array.ofDim[(Double, Double, Double)](1, 1)),
                                           text ="Pond value")
 
-
+  var listnerRadioButtonAdded : Option[RadioButtonOperationAddedListener] = None
   buttons += buttonMultiply
   buttons += buttonAdd
   buttons += buttonSub
@@ -47,4 +48,13 @@ class ButtonGroupOperations extends ButtonGroup {
       case None => return None
     }
 
+  override def operationAdded(name: String, list: List[Expression]): Unit = {
+    val buttonOperation = new RadioButtonOperation(OperationSequence(Var("_this"), name, list), text = name)
+    buttons += buttonOperation
+    listnerRadioButtonAdded match {
+      case Some(operationAddedListener) =>
+        operationAddedListener.onRadioButtonAdded(buttonOperation)
+      case None =>
+    }
+  }
 }
