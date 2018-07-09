@@ -96,7 +96,7 @@ object Operations {
       if (evaluated) return image.getRGBADouble(row, col)
       this match {
         case Var("_this") => return image.getRGBADouble(row, col)
-        case Num(number) => return (number, number, number, image.getA(row, col))
+        case Num(number) => return (number, number, number, image.getADouble(row, col))
         case ColorExpression(color) =>
           return (color.getRed / Image.ComponentValues, color.getGreen / Image.ComponentValues,
                   color.getBlue / Image.ComponentValues, color.getAlpha / Image.ComponentValues)
@@ -145,16 +145,17 @@ object Operations {
    }
 
     private def evaluateAllSelected(image: Image, exp: Expression): Unit = {
-      var tmpBuffer = image.pixels.clone()
+      val tmpBuffer = image.pixelsComponents.clone()
       for (row <- 0 until image.icon.getIconHeight; col <- 0 until image.icon.getIconWidth) {
         val expEval = exp.calculate(image, row, col)
         if ((row == 0) && (col == 0))
           println(expEval)
         image.setRGBADouble(row, col, expEval, tmpBuffer)
       }
-      image.pixels = tmpBuffer
+      image.pixelsComponents = tmpBuffer
       exp.evaluated = true
     }
+
     def calculateSelectedPixels(image: Image): Unit = {
       evaluateAllSelected(image, this)
     }

@@ -44,7 +44,7 @@ class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
 
     val bufferedImage = new BufferedImage(image.icon.getIconWidth, image.icon.getIconHeight, BufferedImage.TYPE_INT_ARGB)
     bufferedImage.setRGB(0, 0, image.icon.getIconWidth, image.icon.getIconHeight,
-                         image.pixels, 0, image.icon.getIconWidth)
+                         image.get256RGBArray, 0, image.icon.getIconWidth)
     val graphics = bufferedImage.createGraphics()
     val rectColor = new Color(0, 0, 255, 255)
     graphics.setColor(rectColor)

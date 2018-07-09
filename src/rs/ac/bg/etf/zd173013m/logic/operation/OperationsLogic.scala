@@ -34,7 +34,19 @@ class OperationsLogic (buttonGroupOperations: ButtonGroupOperations){
   def saveSelectedOperations(arg1: Option[String], arg2: Option[Color]): Unit = {
     buttonGroupOperations.getSelected match {
       case Some(operation) =>
-        listSavedOperations += operation.expression
+        val tmpExp = expr
+        expr = Var("_this")
+        val tmpListners = listenersSeqOp
+        listenersSeqOp = ListBuffer()
+        val tmpeListnerOpt = listenerOpt
+        listenerOpt = None
+
+        executeSelectedOperations(arg1, arg2)
+        listSavedOperations += expr
+
+        expr = tmpExp
+        listenersSeqOp = tmpListners
+        listenerOpt = tmpeListnerOpt
       case None =>
         println("Nothing is selected")
     }
@@ -159,6 +171,8 @@ class OperationsLogic (buttonGroupOperations: ButtonGroupOperations){
               case None =>
                 println("Error")
             }
+
+          case OperationSequence(_, _) =>
           case _ => println("Nema medju ponudjenim")
         }
         listenerOpt match {
