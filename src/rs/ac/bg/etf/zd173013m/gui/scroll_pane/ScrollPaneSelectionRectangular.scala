@@ -8,7 +8,7 @@ import scala.collection.mutable.ArrayBuffer
 class ScrollPaneSelectionRectangular extends ScrollPaneSelection {
 
 
-  override def createSelection(nameOpt: Option[String]): SelectionRectangular=
+  protected override def createSelection(nameOpt: Option[String]): SelectionRectangular=
     nameOpt match {
       case Some(nameVal) => new SelectionRectangular(nameVal)
       case None => new SelectionRectangular()

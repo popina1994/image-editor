@@ -5,9 +5,7 @@ import rs.ac.bg.etf.zd173013m.logic.selection.Selection
 
 import scala.collection.immutable.Vector
 import scala.collection.mutable.ArrayBuffer
-import scala.swing.ListView.Renderer
-import scala.swing.event.SelectionChanged
-import scala.swing.{Dimension, ListView, ScrollPane}
+import scala.swing.{Dimension, ScrollPane}
 
 abstract class ScrollPaneSelection() {
 
@@ -23,16 +21,13 @@ abstract class ScrollPaneSelection() {
   protected def addSelectionToListView(selection: Selection): Unit =
   {
     _listSelections += selection
-    // TODO: Maybe optimization?
     // This is only used because refresh does not work.
     listViewSelection.listData = _listSelections
   }
 
   def addNewSelection(name: Option[String]): Selection=
   {
-    val selection = createSelection(None)
-    // TODO: Maybe optimization?
-    // This is only used because refresh does not work.
+    val selection = createSelection(name)
     addSelectionToListView(selection)
 
     return _listSelections.last

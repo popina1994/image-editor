@@ -10,7 +10,7 @@ class ScrollPaneSelectionSelection extends ScrollPaneSelection {
   // Allows only one selection at time to be on the screen.
   listViewSelection.selection.intervalMode = IntervalMode.Single
 
-  def createSelection(nameOpt: Option[String], rectangles: ArrayBuffer[SelectionRectangular]):
+  protected  def createSelection(nameOpt: Option[String], rectangles: ArrayBuffer[SelectionRectangular]):
   SelectionSelection = {
     nameOpt match {
       case Some(nameVal) => new SelectionSelection(nameVal, rectangles)

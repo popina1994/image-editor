@@ -5,6 +5,7 @@ import java.util.function.DoubleUnaryOperator
 import rs.ac.bg.etf.zd173013m.logic.image.Image
 import rs.ac.bg.etf.zd173013m.logic.operation.Operations._
 
+import scala.collection.mutable.ListBuffer
 import scala.swing.Color
 
 object Operations {
@@ -46,7 +47,8 @@ object Operations {
             case None =>
             case Some(rgba) =>
               count += 1
-              sum = applyFunOnlyToRGB2((rgba._1, rgba._2, rgba._3), sum, Singleton.operationAdd.func)
+              sum = applyFunOnlyToRGB2((rgba._1, rgba._2, rgba._3), sum,
+                (a: Double, b: Double) => a + b)
           }
         return (sum._1 / count, sum._2 / count, sum._3 / count, image.getRGBADouble(row, col)._4)
       }
@@ -64,11 +66,10 @@ object Operations {
               count += 1
               val mulVal = applyFunOnlyToRGB2((rgba._1, rgba._2, rgba._3),
                 matrix(rowIdx - startRowIdx)(colIdx - startColIdx),
-                Singleton.operationMultiply.func)
-              sum = applyFunOnlyToRGB2(sum, mulVal, Singleton.operationAdd.func)
+                (a: Double, b: Double) => a  * b)
+              sum = applyFunOnlyToRGB2(sum, mulVal, (a: Double, b: Double) => a + b)
           }
         return (sum._1 / count, sum._2 / count, sum._3 / count, image.getRGBADouble(row, col)._4)
-
       }
 
       if (evaluated) return image.getRGBADouble(row, col)
@@ -118,8 +119,10 @@ object Operations {
 
     private def evaluateAllSelected(image: Image, exp: Expression): Unit = {
       val tmpBuffer = image.pixelsComponents.clone()
+      var calculateSub = true
       for (row <- 0 until image.icon.getIconHeight; col <- 0 until image.icon.getIconWidth
       if image.isSelected(row, col)) {
+        calculateSub = false
         val expEval = exp.calculate(image, row, col)
         if ((row == 0) && (col == 0))
           println(expEval)
@@ -298,7 +301,7 @@ object Operations {
 
     def func(a: Double, b: Double) = Math.max(a, b)
 
-    def func1(a: Double) : Double = func(a, e2.value)
+    def func1(a: Double ) : Double = func(a, e2.value)
 
     override def funcCalculateRGBA(image: Image, row: Int, col: Int):
     (Double, Double, Double, Double) = return funcCalculateRGBAExpr(image, row, col)(e1, rgbaapplyTorgb(func1))
@@ -375,23 +378,26 @@ object Operations {
     override def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = ???
   }
 
-  case class OperationSequence(e: Expression, name: String, list: List[Expression]) extends Expression
-  {
-    override def toString:String = {
+  case class OperationSequence(e: Expression, name: String, list: List[Expression]) extends Expression {
+    override def toString: String = {
       var output: String = "list_" + name
       list.foreach(output += " " + _)
       return output
     }
-    override def copyOverride: Expression = this.copy()
+
+    override def copyOverride: Expression = {
+      val listBuffer = new ListBuffer[Expression]
+      for (it <- list) {
+        val tmp = it.copyOverride
+        it.evaluated = false
+        listBuffer += tmp
+      }
+      return this.copy(list =listBuffer.toList)
+  }
+
     override def funcCalculateRGBA(image: Image, row: Int, col: Int): (Double, Double, Double, Double) = ???
     override def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = ???
   }
 
 
-}
-
-object Singleton {
-  val operationAdd = OperationAdd(Num(1), Num(1))
-  val operationMultiply = OperationMultiply(Num(1), Num(1))
-  val operationDiv = OperationDiv(Num(1), Num(1))
 }
