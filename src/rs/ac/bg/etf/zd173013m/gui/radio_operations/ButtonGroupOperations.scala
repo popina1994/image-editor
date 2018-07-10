@@ -48,13 +48,25 @@ class ButtonGroupOperations extends ButtonGroup with OperationAddedListener {
       case None => return None
     }
 
-  override def operationAdded(name: String, list: List[Expression]): Unit = {
-    val buttonOperation = new RadioButtonOperation(OperationSequence(Var("_this"), name, list), text = name)
-    buttons += buttonOperation
+  private def addRadioButton(radioButtonOperation: RadioButtonOperation): Unit = {
+    buttons += radioButtonOperation
     listnerRadioButtonAdded match {
       case Some(operationAddedListener) =>
-        operationAddedListener.onRadioButtonAdded(buttonOperation)
+        operationAddedListener.onRadioButtonAdded(radioButtonOperation)
       case None =>
     }
+  }
+
+  override def operationAdded(name: String, list: List[Expression], isComposite: Boolean): Unit = {
+    if (!isComposite)
+    {
+      addRadioButton(new RadioButtonOperation(OperationSequence(Var("_this"), name, list), text = name))
+    }
+    else
+    {
+      addRadioButton(new RadioButtonOperation(OperationComposite(Var("_this"), name, list), text = name))
+    }
+
+
   }
 }

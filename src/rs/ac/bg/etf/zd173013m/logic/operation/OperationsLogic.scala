@@ -30,11 +30,13 @@ class OperationsLogic (buttonGroupOperations: ButtonGroupOperations){
     }
     return outputArray
   }
-  def copyListOperations(listBuffer: List[Expression]): List[Expression] = {
+
+  private def copyListOperations(listBuffer: List[Expression]): List[Expression] = {
     var buffer : ListBuffer[Expression]= ListBuffer()
     listBuffer.foreach((e: Expression) => buffer += e.copyOverride)
     return buffer.toList
   }
+
   def saveSelectedOperations(arg1: Option[String], arg2: Option[Color]): Unit = {
     buttonGroupOperations.getSelected match {
       case Some(operation) =>
@@ -63,7 +65,8 @@ class OperationsLogic (buttonGroupOperations: ButtonGroupOperations){
           realName = name
       case None =>
     }
-    listenersSeqOp.foreach(_.operationAdded(realName, listSavedOperations.toList))
+    listenersSeqOp.foreach(_.operationAdded(realName, listSavedOperations.toList, isComposite))
+
     listSavedOperations = ListBuffer()
   }
 
@@ -175,6 +178,8 @@ class OperationsLogic (buttonGroupOperations: ButtonGroupOperations){
             }
           case OperationSequence(_, name, listOperations) =>
             expr = OperationSequence(expr, name, copyListOperations(listOperations))
+          case OperationComposite(_, name, listOperations) =>
+            expr = OperationComposite(expr, name, copyListOperations(listOperations))
           case _ => println("Nema medju ponudjenim")
         }
         listenerOpt match {
