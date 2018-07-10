@@ -7,8 +7,9 @@ import java.util.Date
 
 import javax.swing.ImageIcon
 import rs.ac.bg.etf.zd173013m.gui.image_label.{ImageLabel, ImageLabelListener}
-import rs.ac.bg.etf.zd173013m.gui.scroll_pane.ScrollPaneSelectionRectangular
+import rs.ac.bg.etf.zd173013m.gui.scroll_pane.{ScrollPaneSelectionLayer, ScrollPaneSelectionRectangular}
 import rs.ac.bg.etf.zd173013m.gui.scroll_pane.list_view.ListViewListener
+import rs.ac.bg.etf.zd173013m.logic.layer.LayerChangeListener
 import rs.ac.bg.etf.zd173013m.logic.operation.Operations.{Expression, Var}
 import rs.ac.bg.etf.zd173013m.logic.operation.OperationsListener
 import rs.ac.bg.etf.zd173013m.logic.selection.SelectionRectangular
@@ -17,8 +18,9 @@ import scala.collection.mutable.ArrayBuffer
 import scala.swing.Point
 
 class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
-                 var scrollPaneSelectionRectangular: ScrollPaneSelectionRectangular)
-            extends ImageLabelListener with  ListViewListener with OperationsListener {
+                 var scrollPaneSelectionRectangular: ScrollPaneSelectionRectangular,
+                 var scrollPaneSelectionLayer: ScrollPaneSelectionLayer)
+            extends ImageLabelListener with  ListViewListener with OperationsListener with LayerChangeListener{
   var image: Image = new Image(iconPath, scrollPaneSelectionRectangular.vectorSelections())
   imageLabel.listenerOpt = Option(this)
   scrollPaneSelectionRectangular.listViewSelection.listenerOpt = Option(this)
@@ -29,20 +31,33 @@ class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
   private [this]var expression: Expression = Var("_this")
 
   private def updateImage(refreshImage: Boolean, updateSelection: Boolean) = {
+    val bufferedImage = new BufferedImage(image.icon.getIconWidth, image.icon.getIconHeight, BufferedImage.TYPE_INT_ARGB)
     if (updateSelection) {
-      image.resetSelection()
-      for (it <- scrollPaneSelectionRectangular.vectorSelections
-           if it.active) image.setSelected(it.rectangle)
-      image.setSelected(curRectangle)
+      for (layer <- scrollPaneSelectionLayer.vectorSelections()) {
+        // TODO: one selection for all layers
+        layer.imageOpt.get.resetSelection()
+        for (it <- scrollPaneSelectionRectangular.vectorSelections
+             if it.active) layer.imageOpt.get.setSelected(it.rectangle)
+        //layer.imageOpt.get.setSelected(curRectangle)
+      }
     }
     if (refreshImage)
     {
-      expression.calculateSelectedPixels(image)
+      for (layer <- scrollPaneSelectionLayer.vectorSelections())
+        {
+          layer.expr.calculateSelectedPixels(layer.imageOpt.get)
+          bufferedImage.setRGB(0, 0, image.icon.getIconWidth, image.icon.getIconHeight,
+            layer.imageOpt.get.get256RGBArray, 0, image.icon.getIconWidth)
+        }
+    }
+    for (layer <- scrollPaneSelectionLayer.vectorSelections())
+    {
+      bufferedImage.setRGB(0, 0, image.icon.getIconWidth, image.icon.getIconHeight,
+        layer.imageOpt.get.get256RGBArray, 0, image.icon.getIconWidth)
     }
 
-    val bufferedImage = new BufferedImage(image.icon.getIconWidth, image.icon.getIconHeight, BufferedImage.TYPE_INT_ARGB)
-    bufferedImage.setRGB(0, 0, image.icon.getIconWidth, image.icon.getIconHeight,
-                         image.get256RGBArray, 0, image.icon.getIconWidth)
+
+
     val graphics = bufferedImage.createGraphics()
     val rectColor = new Color(0, 0, 255, 255)
     graphics.setColor(rectColor)
@@ -64,8 +79,6 @@ class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
       for (it <- scrollPaneSelectionRectangular.vectorSelections
            if it.active) drawRectangle(it.rectangle)
 
-
-
     imageLabel.icon = new ImageIcon(bufferedImage)
   }
 
@@ -82,6 +95,7 @@ class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
     updateImage(true, true)
   }
 
+  // Image label listener
   override def onMouseClick(point: Point): Unit =
     {
       curRectangle.leftTop = point
@@ -106,6 +120,7 @@ class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
       updateImage(false, true)
     }
 
+  // ListViewListener -> Selection Changed listener
   override def onSelected(): Unit = updateImage(false, true)
 
   override def onUnselected(): Unit = updateImage(false, true)
@@ -114,13 +129,16 @@ class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
      scrollPaneSelectionRectangular.deleteSelected()
      updateImage(false, true)
    }
-
-  override def changedExpression(expression: Expression): Unit = {
-    this.expression = expression
+  // OperationsAddedListener
+  override def appliedExpression(): Unit = {
     updateImage(true, true)
   }
+  // LayerChangeListener
+  override def onAdded(): Unit = ???
+
+  override def onRemoved(): Unit = ???
 }
 
 object ImageLogic{
-  val DefaultFileName = "C:/Users/popina/IdeaProjects/ImageEditor/assets/1.jpg"
+  val DefaultFileName = "C:/Users/popina/IdeaProjects/ImageEditor/assets/Initial.png"
 }

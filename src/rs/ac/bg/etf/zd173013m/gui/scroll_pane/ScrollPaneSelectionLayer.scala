@@ -1,14 +1,15 @@
 package rs.ac.bg.etf.zd173013m.gui.scroll_pane
 
+import rs.ac.bg.etf.zd173013m.logic.image.{Image, ImageLogic}
 import rs.ac.bg.etf.zd173013m.logic.selection.{SelectionLayer, SelectionRectangular}
 
 import scala.collection.immutable.Vector
 
-class ScrollPaneSelectionLayer extends ScrollPaneSelection {
-
+class ScrollPaneSelectionLayer() extends ScrollPaneSelection {
+  addNewSelection(Option("default")).updateImage(Image.generateBlackImage())
   protected override def createSelection(nameOpt: Option[String]): SelectionLayer =
     nameOpt match {
-      case Some(nameVal) => new SelectionLayer(nameVal)
+      case Some(nameVal) => new SelectionLayer(nameVal, None)
       case None => new SelectionLayer()
     }
 
@@ -17,7 +18,7 @@ class ScrollPaneSelectionLayer extends ScrollPaneSelection {
     return  super.addNewSelection(name).asInstanceOf[SelectionLayer]
   }
 
-  override  def vectorSelections(): Vector[SelectionRectangular] = {
-    return super.vectorSelections.asInstanceOf[Vector[SelectionRectangular]]
+  override  def vectorSelections(): Vector[SelectionLayer] = {
+    return super.vectorSelections.asInstanceOf[Vector[SelectionLayer]]
   }
 }

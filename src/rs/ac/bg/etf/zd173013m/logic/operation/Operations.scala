@@ -80,11 +80,8 @@ object Operations {
           return (color.getRed / Image.ComponentValues, color.getGreen / Image.ComponentValues,
                   color.getBlue / Image.ComponentValues, color.getAlpha / Image.ComponentValues)
 
-        case operationBin @ (OperationAdd(_, _) | OperationMultiply(_, _)
-          | OperationSub(_, _) | OperationDiv(_, _) | OperationPower(_, _) |
-          OperationLog(_, _) | OperationMin(_, _) | OperationMax(_, _) |
-          OperationSet(_) | OperationAbs(_) | OperationInvertColor(_) | OperationGrayScale(_)
-          | OperationInvDiv(_, _) | OperationInvSub(_, _) | OperationComposite(_, _, _)) =>
+        case operationBin @ (OperationBinary(_, _, _) |
+                             OperationGrayScale(_) | OperationComposite(_, _, _)) =>
           return operationBin.funcCalculateRGBA(image, row, col)
         case OperationMedian(exp, n) =>
           if (!exp.evaluated)
@@ -161,159 +158,18 @@ object Operations {
     override def funcCalculateRGBA(image: Image, row: Int, col: Int):
     (Double, Double, Double, Double) = ???
     def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = ???
-
   }
 
-  case class OperationAdd(val e1: Expression, val e2: Num) extends  Expression {
+  case class OperationBinary(val e1: Expression, val e2: Num, func: (Double, Double) => Double) extends Expression
+  {
     override def toString: String = e1.toString + " + " + e2.toString
 
     override def copyOverride: Expression = this.copy()
 
-    def func(a: Double, b: Double) = a + b
-
     def func1(a: Double) : Double = func(a, e2.value)
 
     override def funcCalculateRGBA(image: Image, row: Int, col: Int):
     (Double, Double, Double, Double) = return funcCalculateRGBAExpr(image, row, col)(e1, rgbaapplyTorgb(func1))
-    override def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = rgbaapplyTorgb(func1)
-  }
-
-  case class OperationSub(e1: Expression, e2: Num) extends  Expression {
-    override def toString = e1.toString + " - " + e2.toString
-    override def copyOverride: Expression = this.copy()
-    def func(a: Double, b: Double) = a - b
-    def func1(a: Double) : Double = func(a, e2.value)
-
-    override def funcCalculateRGBA(image: Image, row: Int, col: Int):
-    (Double, Double, Double, Double) = return funcCalculateRGBAExpr(image, row, col)(e1, rgbaapplyTorgb(func1))
-    override def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = rgbaapplyTorgb(func1)
-  }
-
-  case class OperationInvSub(e1: Expression, e2: Num) extends  Expression {
-    override def toString = e1.toString + " - " + e2.toString
-    override def copyOverride: Expression = this.copy()
-    def func(a: Double, b: Double) = b - a
-    def func1(a: Double) : Double = func(a, e2.value)
-
-    override def funcCalculateRGBA(image: Image, row: Int, col: Int):
-    (Double, Double, Double, Double) = return funcCalculateRGBAExpr(image, row, col)(e1, rgbaapplyTorgb(func1))
-    override def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = rgbaapplyTorgb(func1)
-  }
-
-  case class OperationMultiply(e1: Expression, e2: Num) extends Expression {
-    override def toString = e1.toString + " * " + e2.toString
-
-    override def copyOverride: Expression = this.copy()
-    def func(a: Double, b: Double) = a * b
-    def func1(a: Double) : Double = func(a, e2.value)
-
-    override def funcCalculateRGBA(image: Image, row: Int, col: Int):
-    (Double, Double, Double, Double) = return funcCalculateRGBAExpr(image, row, col)(e1, rgbaapplyTorgb(func1))
-    override def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = rgbaapplyTorgb(func1)
-  }
-
-  case class OperationDiv(e1: Expression, e2: Num) extends Expression {
-    override def toString = e1.toString + " / " + e2.toString
-
-    override def copyOverride: Expression = this.copy()
-    def func(a: Double, b: Double) = a / b
-    def func1(a: Double) : Double = func(a, e2.value)
-
-    override def funcCalculateRGBA(image: Image, row: Int, col: Int):
-    (Double, Double, Double, Double) = return funcCalculateRGBAExpr(image, row, col)(e1, rgbaapplyTorgb(func1))
-    override def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = rgbaapplyTorgb(func1)
-  }
-  case class OperationInvDiv(e1: Expression, e2: Num) extends Expression {
-    override def toString = e1.toString + " / " + e2.toString
-
-    override def copyOverride: Expression = this.copy()
-    def func(a: Double, b: Double) = b / a
-    def func1(a: Double) : Double = func(a, e2.value)
-
-    override def funcCalculateRGBA(image: Image, row: Int, col: Int):
-    (Double, Double, Double, Double) = return funcCalculateRGBAExpr(image, row, col)(e1, rgbaapplyTorgb(func1))
-    override def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = rgbaapplyTorgb(func1)
-  }
-
-  case class OperationSet(e: Expression) extends Expression {
-    override def copyOverride: Expression = this.copy()
-    def func(a: Double, b: Double) = a
-    def func1(a: Double) : Double = func(a, 0)
-
-    override def funcCalculateRGBA(image: Image, row: Int, col: Int):
-    (Double, Double, Double, Double) = return funcCalculateRGBAExpr(image, row, col)(e, rgbaapplyTorgb(func1))
-    override def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = rgbaapplyTorgb(func1)
-  }
-
-  case class OperationPower(e1: Expression, e2: Num) extends  Expression {
-    override def toString = e1.toString + " ^ " + e2.toString
-
-    override def copyOverride: Expression = this.copy()
-    def func(a: Double, b: Double) = Math.pow(a, b)
-    def func1(a: Double) : Double = func(a, 0)
-
-    override def funcCalculateRGBA(image: Image, row: Int, col: Int):
-    (Double, Double, Double, Double) = return funcCalculateRGBAExpr(image, row, col)(e1, rgbaapplyTorgb(func1))
-    override def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = rgbaapplyTorgb(func1)
-  }
-
-  case class OperationLog(e1: Expression, e2: Num) extends  Expression {
-    override def toString = "Log(" + e1.toString + "," + e2.toString + ")"
-
-    override def copyOverride: Expression = this.copy()
-
-    def func(a: Double, b: Double) = Math.log(a) / Math.log(b)
-
-    def func1(a: Double) : Double = func(a, e2.value)
-
-    override def funcCalculateRGBA(image: Image, row: Int, col: Int):
-    (Double, Double, Double, Double) = return funcCalculateRGBAExpr(image, row, col)(e1, rgbaapplyTorgb(func1))
-    override def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = rgbaapplyTorgb(func1)
-  }
-
-  case class OperationAbs(e: Expression) extends  Expression {
-    override def toString = "Abs(" + e.toString + ")"
-    override def copyOverride: Expression = this.copy()
-
-    def func1(a: Double) : Double = Math.abs(a)
-
-    override def funcCalculateRGBA(image: Image, row: Int, col: Int):
-    (Double, Double, Double, Double) = return funcCalculateRGBAExpr(image, row, col)(e, rgbaapplyTorgb(func1))
-    override def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = rgbaapplyTorgb(func1)
-  }
-
-  case class OperationMin(e1: Expression, e2: Num) extends  Expression {
-    override def toString = "Min(" + e1.toString + "," + e2.toString + ")"
-    override def copyOverride: Expression = this.copy()
-
-    def func(a: Double, b: Double) = Math.min(a, b)
-
-    def func1(a: Double) : Double = func(a, e2.value)
-
-    override def funcCalculateRGBA(image: Image, row: Int, col: Int):
-    (Double, Double, Double, Double) = return funcCalculateRGBAExpr(image, row, col)(e1, rgbaapplyTorgb(func1))
-    override def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = rgbaapplyTorgb(func1)
-  }
-
-  case class OperationMax(e1: Expression, e2: Num) extends  Expression {
-    override def toString = "Mаx(" + e1.toString + "," + e2.toString + ")"
-    override def copyOverride: Expression = this.copy()
-
-    def func(a: Double, b: Double) = Math.max(a, b)
-
-    def func1(a: Double ) : Double = func(a, e2.value)
-
-    override def funcCalculateRGBA(image: Image, row: Int, col: Int):
-    (Double, Double, Double, Double) = return funcCalculateRGBAExpr(image, row, col)(e1, rgbaapplyTorgb(func1))
-    override def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = rgbaapplyTorgb(func1)
-  }
-
-  case class OperationInvertColor(e: Expression) extends Expression {
-    override def copyOverride: Expression = this.copy()
-    def func1(a: Double) : Double = 1 - a
-
-    override def funcCalculateRGBA(image: Image, row: Int, col: Int):
-    (Double, Double, Double, Double) = return funcCalculateRGBAExpr(image, row, col)(e, rgbaapplyTorgb(func1))
     override def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = rgbaapplyTorgb(func1)
   }
 
@@ -330,6 +186,7 @@ object Operations {
     override def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = grayScale
   }
 
+
   case class OperationComposite(e: Expression, name: String, list: List[Expression]) extends Expression
   {
     override def toString:String = {
@@ -343,11 +200,8 @@ object Operations {
     private var isFirst = true
     for (it <- list) {
       it match {
-        case operationBin @ (OperationAdd(_, _) | OperationMultiply(_, _)
-                             | OperationSub(_, _) | OperationDiv(_, _) | OperationPower(_, _) |
-                             OperationLog(_, _) | OperationMin(_, _) | OperationMax(_, _) |
-                             OperationSet(_) | OperationAbs(_) | OperationInvertColor(_) | OperationGrayScale(_)
-                             | OperationInvDiv(_, _) | OperationInvSub(_, _) | OperationComposite(_, _, _)) if !isFirst =>
+        case operationBin @ (OperationBinary(_, _, _) |
+                             OperationGrayScale(_) | OperationComposite(_, _, _)) if !isFirst =>
           func1 = func1.andThen(it.getFun1)
         case _ => println("SOmething is really bad")
       }

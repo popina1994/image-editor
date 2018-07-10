@@ -44,15 +44,6 @@ abstract class ScrollPaneSelection() {
     listViewSelection.selectIndices(_listSelections.length - 1)
   }
 
-  def selectAll(): Unit = {
-    var idx = 0
-    for (it <- _listSelections)
-      {
-        it.active = true
-        //listViewSelection.selectIndices(Array(idx))
-      }
-  }
-
   def deleteSelected()=
   {
     _listSelections --= _listSelections.filter((s: Selection)=> s.active)

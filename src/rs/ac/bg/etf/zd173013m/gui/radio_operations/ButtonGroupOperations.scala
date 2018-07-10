@@ -6,20 +6,33 @@ import rs.ac.bg.etf.zd173013m.logic.operation.Operations._
 import scala.swing.{ButtonGroup, RadioButton}
 
 class ButtonGroupOperations extends ButtonGroup with OperationAddedListener {
-  val buttonMultiply = new RadioButtonOperation(OperationMultiply(Var("_this"), Num(1)), "Multiply")
-  val buttonAdd = new RadioButtonOperation(OperationAdd(Var("this"), Num(value=1)), text="Addition")
-  val buttonSub = new RadioButtonOperation(OperationSub(Var("this"), Num(value=0)), text ="Subtraction")
-  val buttonInvSub = new RadioButtonOperation(OperationInvSub(Var("this"), Num(value=0)), text ="Inverse subtraction")
-  val buttonDiv = new RadioButtonOperation(OperationDiv(Var("this"), Num(value=0)), text ="Division")
-  val buttonInvDiv = new RadioButtonOperation(OperationInvDiv(Var("this"), Num(value=0)), text ="Invert division")
-  val buttonSet = new RadioButtonOperation(OperationSet(Var("this")), text ="Set Color")
-  val buttonPower = new RadioButtonOperation(OperationPower(Var("this"), Num(1)), text ="Power")
-  val buttonLog = new RadioButtonOperation(OperationLog(Var("this"), Num(2)), text ="Log")
-  val buttonAbs = new RadioButtonOperation(OperationAbs(Var("this")), text ="Absolute value")
-  val buttonMin = new RadioButtonOperation(OperationMin(Var("this"), Num(1)), text ="Minimum")
-  val buttonMax = new RadioButtonOperation(OperationMax(Var("this"), Num(1)), text ="Maximum")
-  val buttonInvertColor = new RadioButtonOperation(OperationInvertColor(Var("this")), text ="Invert color")
-  val buttonGrayScale = new RadioButtonOperation(OperationGrayScale(Var("this")), text ="GrayScale")
+  val buttonMultiply = new RadioButtonOperation(OperationBinary(Var("_this"), Num(1),
+          (a :Double, b:Double) => a * b), "Multiply")
+  val buttonAdd =  new RadioButtonOperation(OperationBinary(Var("_this"), Num(0),
+    (a :Double, b:Double) => a + b), "Addition")
+  val buttonSub =  new RadioButtonOperation(OperationBinary(Var("_this"), Num(0),
+    (a :Double, b:Double) => a - b), "Subtraction")
+  val buttonInvSub =  new RadioButtonOperation(OperationBinary(Var("_this"), Num(0),
+    (a :Double, b:Double) => b - a), "Inverse subtraction")
+  val buttonDiv =  new RadioButtonOperation(OperationBinary(Var("_this"), Num(1),
+    (a :Double, b:Double) => a / b), "Division")
+  val buttonInvDiv = new RadioButtonOperation(OperationBinary(Var("_this"), Num(1),
+    (a :Double, b:Double) => b / a), "Inverse division")
+  val buttonSet = new RadioButtonOperation(OperationBinary(Var("_this"), Num(1),
+    (a :Double, b:Double) => a ), "Set")
+  val buttonPower = new RadioButtonOperation(OperationBinary(Var("_this"), Num(1),
+    (a :Double, b:Double) => Math.pow(a, b)), "Power")
+  val buttonLog = new RadioButtonOperation(OperationBinary(Var("_this"), Num(1),
+    (a :Double, b:Double) => Math.log(a) / Math.log(b)), "Logarithm")
+  val buttonAbs = new RadioButtonOperation(OperationBinary(Var("_this"), Num(1),
+    (a :Double, b:Double) => Math.abs(a)), "Absolute value")
+  val buttonMin = new RadioButtonOperation(OperationBinary(Var("_this"), Num(1),
+    (a :Double, b:Double) => Math.min(a, b)), "Minimum")
+  val buttonMax = new RadioButtonOperation(OperationBinary(Var("_this"), Num(0),
+    (a :Double, b:Double) => Math.max(a, b)), "Maximum")
+  val buttonInvertColor = new RadioButtonOperation(OperationBinary(Var("_this"), Num(1),
+    (a :Double, b:Double) => 1 - a), "Invert color")
+  val buttonGrayScale = new RadioButtonOperation(OperationGrayScale(Var("_this")), "GrayScale")
   val buttonMedian = new RadioButtonOperation(OperationMedian(Var("this"), 0), text ="Median value")
   val buttonPond = new RadioButtonOperation(OperationPond(Var("this"), Array.ofDim[(Double, Double, Double)](1, 1)),
                                           text ="Pond value")

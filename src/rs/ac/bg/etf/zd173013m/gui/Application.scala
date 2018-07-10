@@ -16,16 +16,17 @@ import scala.swing.event.{ButtonClicked, ColorChanged, MouseClicked}
 
 object Application extends SimpleSwingApplication {
   def top = new MainFrame {
+    def isEmpty(x: String) = x == null || x.trim.isEmpty
     title = "Image Editor"
     preferredSize = getDefaultToolkit.getScreenSize
     private val imageLabel = new ImageLabel(ImageLogic.DefaultFileName)
     private val scrollPaneSelectionRectangular = new ScrollPaneSelectionRectangular()
     private val scrollPaneSelectionSelection= new ScrollPaneSelectionSelection()
     private val scrollPaneSelectionLayer = new ScrollPaneSelectionLayer()
-    private val imageLogic = new ImageLogic(imageLabel, ImageLogic.DefaultFileName, scrollPaneSelectionRectangular)
+    private val imageLogic = new ImageLogic(imageLabel, ImageLogic.DefaultFileName, scrollPaneSelectionRectangular, scrollPaneSelectionLayer)
     private val selectionLogic = new SelectionLogic(imageLogic, scrollPaneSelectionSelection, scrollPaneSelectionRectangular)
     private val buttonGroupOperations = new ButtonGroupOperations
-    private val operationsLogic = new OperationsLogic(buttonGroupOperations)
+    private val operationsLogic = new OperationsLogic(buttonGroupOperations, scrollPaneSelectionLayer)
     operationsLogic.listenerOpt = Option(imageLogic)
     private val layerLogic = new LayerLogic(scrollPaneSelectionLayer)
 
@@ -52,11 +53,9 @@ object Application extends SimpleSwingApplication {
           reactions += {
             case ButtonClicked(_) =>
               println("Created new selection")
-              val result = Dialog.showInput(contents.head, "Input name for new selection", initial="")
-              result match {
-                case Some(name) => selectionLogic.newSelection(Option(name))
-                case None => println("Some random error")
-              }
+              var result = Dialog.showInput(contents.head, "Input name for new selection", initial="")
+              result = if (isEmpty(result.get)) (None) else result
+              selectionLogic.newSelection(result)
           }
           preferredSize = new Dimension(30, 30)
         }
@@ -77,11 +76,9 @@ object Application extends SimpleSwingApplication {
           reactions += {
             case ButtonClicked(_) =>
               println("Created new layer")
-              val result = Dialog.showInput(contents.head, "Input name for new layer", initial="")
-              result match {
-                case Some(name) => layerLogic.newSelection(Option(name))
-                case None => println("Some random error")
-              }
+              var result = Dialog.showInput(contents.head, "Input name for new layer", initial="")
+              result = if (isEmpty(result.get)) (None) else result
+              layerLogic.newSelection(result)
           }
           preferredSize = new Dimension(30, 30)
         }
@@ -112,7 +109,7 @@ object Application extends SimpleSwingApplication {
           }
         }
 
-        def isEmpty(x: String) = x == null || x.trim.isEmpty
+
         contents += new BoxPanel(Orientation.Horizontal) {
           contents += new Button {
             text = "Apply"

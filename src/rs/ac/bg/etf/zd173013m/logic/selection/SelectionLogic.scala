@@ -28,7 +28,7 @@ case class SelectionLogic(val image: ImageLogic, val scrollPaneSelectionSelectio
       find((s: SelectionSelection) => s.active)
     match {
       case Some(selected) => image.replaceSelections(selected.rectangles)
-      case None => println("Nista nije izbrano")
+      case None => println("Nothing is chosen")
     }
   }
 

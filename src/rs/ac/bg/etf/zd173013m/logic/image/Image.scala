@@ -5,6 +5,8 @@ import java.awt.image.{BufferedImage, DataBufferInt}
 import javax.swing.ImageIcon
 import rs.ac.bg.etf.zd173013m.logic.selection.SelectionRectangular
 
+import scala.swing.Color
+
 class Image(iconPath: String, var vectorSelections: Vector[SelectionRectangular]) {
   val icon = new ImageIcon(iconPath)
   private[this] val bufferedImage = new BufferedImage(icon.getIconWidth, icon.getIconHeight, BufferedImage.TYPE_INT_ARGB)
@@ -97,4 +99,9 @@ class Image(iconPath: String, var vectorSelections: Vector[SelectionRectangular]
 
 object Image {
   val ComponentValues: Double = 256.0
+
+  def generateBlackImage():Image=
+  {
+    return new Image(ImageLogic.DefaultFileName, Vector())
+  }
 }
