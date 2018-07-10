@@ -16,7 +16,7 @@ class Image(iconPath: String, var vectorSelections: Vector[SelectionRectangular]
 
   var writeTmp = false
 
-  private var pixels: Array[Int] = bufferedImage.getRaster.getDataBuffer.asInstanceOf[DataBufferInt].getData
+  private val pixels: Array[Int] = bufferedImage.getRaster.getDataBuffer.asInstanceOf[DataBufferInt].getData
   var pixelsComponents: Array[(Double, Double, Double, Double)] =
     Array.ofDim[(Double, Double, Double, Double)](pixels.length)
   private val selectedPixels: Array[Boolean] = for (it <- pixels) yield true

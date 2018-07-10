@@ -21,15 +21,15 @@ object Operations {
       return fun(expRes)
     }
 
-    def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double)
+    def getFun4: ((Double, Double, Double, Double)) => (Double, Double, Double, Double)
 
     def funcCalculateRGBA(image: Image, row: Int, col: Int):
     (Double, Double, Double, Double)
 
-    def rgbaapplyTorgb(fun: (Double) => Double) =
+    protected def rgbaapplyTorgb(fun: (Double) => Double) =
       (value: (Double, Double, Double, Double)) => {
         (fun(value._1), fun(value._2), fun(value._3), value._4)
-      }
+    }
 
     private def calculate(image: Image, row: Int, col: Int): (Double, Double, Double, Double) =
     {
@@ -79,9 +79,9 @@ object Operations {
         case ColorExpression(color) =>
           return (color.getRed / Image.ComponentValues, color.getGreen / Image.ComponentValues,
                   color.getBlue / Image.ComponentValues, color.getAlpha / Image.ComponentValues)
-
         case operationBin @ (OperationBinary(_, _, _) |
-                             OperationGrayScale(_) | OperationComposite(_, _, _)) =>
+                             OperationGrayScale(_) | OperationComposite(_, _, _)
+                            | OperationSet(_)) =>
           return operationBin.funcCalculateRGBA(image, row, col)
         case OperationMedian(exp, n) =>
           if (!exp.evaluated)
@@ -141,7 +141,7 @@ object Operations {
 
     override def funcCalculateRGBA(image: Image, row: Int, col: Int):
     (Double, Double, Double, Double) = ???
-    def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = ???
+    def getFun4: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = ???
   }
   case class Num(value: Double) extends  Expression {
     override def toString = value.toString
@@ -149,7 +149,7 @@ object Operations {
 
     override def funcCalculateRGBA(image: Image, row: Int, col: Int):
     (Double, Double, Double, Double) = ???
-    def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = ???
+    def getFun4: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = ???
   }
 
   case class ColorExpression(value: Color) extends Expression {
@@ -157,7 +157,7 @@ object Operations {
 
     override def funcCalculateRGBA(image: Image, row: Int, col: Int):
     (Double, Double, Double, Double) = ???
-    def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = ???
+    def getFun4: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = ???
   }
 
   case class OperationBinary(val e1: Expression, val e2: Num, func: (Double, Double) => Double) extends Expression
@@ -170,7 +170,17 @@ object Operations {
 
     override def funcCalculateRGBA(image: Image, row: Int, col: Int):
     (Double, Double, Double, Double) = return funcCalculateRGBAExpr(image, row, col)(e1, rgbaapplyTorgb(func1))
-    override def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = rgbaapplyTorgb(func1)
+    override def getFun4: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = rgbaapplyTorgb(func1)
+  }
+
+  case class OperationSet(e: Expression) extends Expression {
+    override def copyOverride: Expression = this.copy()
+    def func(a: Double, b: Double) = a
+    def func1(a: Double) : Double = func(a, 0)
+
+    override def funcCalculateRGBA(image: Image, row: Int, col: Int):
+    (Double, Double, Double, Double) = return funcCalculateRGBAExpr(image, row, col)(e, rgbaapplyTorgb(func1))
+    override def getFun4: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = rgbaapplyTorgb(func1)
   }
 
   case class OperationGrayScale(e: Expression) extends Expression {
@@ -183,7 +193,7 @@ object Operations {
 
     override def funcCalculateRGBA(image: Image, row: Int, col: Int):
     (Double, Double, Double, Double) = return funcCalculateRGBAExpr(image, row, col)(e, grayScale)
-    override def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = grayScale
+    override def getFun4: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = grayScale
   }
 
 
@@ -195,14 +205,15 @@ object Operations {
       return output
     }
 
-    var func1 = list.head.getFun1
+    var func1 = list.head.getFun4
 
     private var isFirst = true
     for (it <- list) {
       it match {
         case operationBin @ (OperationBinary(_, _, _) |
-                             OperationGrayScale(_) | OperationComposite(_, _, _)) if !isFirst =>
-          func1 = func1.andThen(it.getFun1)
+                             OperationGrayScale(_) | OperationComposite(_, _, _)
+                            | OperationSet(_)) if !isFirst =>
+          func1 = func1.andThen(it.getFun4)
         case _ => println("SOmething is really bad")
       }
       isFirst = false
@@ -213,7 +224,7 @@ object Operations {
     override def funcCalculateRGBA(image: Image, row: Int, col: Int): (Double, Double, Double, Double) =
       return funcCalculateRGBAExpr(image, row, col)(e, func1)
 
-    override def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = func1
+    override def getFun4: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = func1
   }
 
   case class OperationMedian(e1: Expression, n: Int) extends Expression {
@@ -222,14 +233,14 @@ object Operations {
     override def funcCalculateRGBA(image: Image, row: Int, col: Int):
     (Double, Double, Double, Double) = ???
 
-    override def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = ???
+    override def getFun4: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = ???
   }
 
   case class OperationPond(e: Expression, matrix: Array[Array[(Double, Double, Double)]]) extends Expression {
     override def copyOverride: Expression = this.copy()
     override def funcCalculateRGBA(image: Image, row: Int, col: Int):
     (Double, Double, Double, Double) = ???
-    override def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = ???
+    override def getFun4: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = ???
   }
 
   case class OperationSequence(e: Expression, name: String, list: List[Expression]) extends Expression {
@@ -250,7 +261,7 @@ object Operations {
   }
 
     override def funcCalculateRGBA(image: Image, row: Int, col: Int): (Double, Double, Double, Double) = ???
-    override def getFun1: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = ???
+    override def getFun4: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = ???
   }
 
 

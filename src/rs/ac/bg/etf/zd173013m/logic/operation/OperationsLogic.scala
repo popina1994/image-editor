@@ -83,6 +83,13 @@ class OperationsLogic (buttonGroupOperations: ButtonGroupOperations, scrollPaneS
                 case None =>
                   layer.expr = OperationBinary(layer.expr, num, func)
               }
+            case OperationSet(_) =>
+              arg2 match {
+                case Some(value) =>
+                    layer.expr = OperationSet(ColorExpression(value))
+                case None =>
+                  layer.expr = OperationSet(ColorExpression(new Color(255, 0, 0, 255)))
+              }
             case OperationGrayScale(_) =>
               layer.expr = OperationGrayScale(layer.expr)
             case OperationMedian(_, _) =>

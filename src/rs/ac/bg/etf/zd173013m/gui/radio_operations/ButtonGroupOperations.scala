@@ -3,7 +3,7 @@ package rs.ac.bg.etf.zd173013m.gui.radio_operations
 import rs.ac.bg.etf.zd173013m.logic.operation.OperationAddedListener
 import rs.ac.bg.etf.zd173013m.logic.operation.Operations._
 
-import scala.swing.{ButtonGroup, RadioButton}
+import scala.swing.{ButtonGroup, Color, RadioButton}
 
 class ButtonGroupOperations extends ButtonGroup with OperationAddedListener {
   val buttonMultiply = new RadioButtonOperation(OperationBinary(Var("_this"), Num(1),
@@ -18,8 +18,7 @@ class ButtonGroupOperations extends ButtonGroup with OperationAddedListener {
     (a :Double, b:Double) => a / b), "Division")
   val buttonInvDiv = new RadioButtonOperation(OperationBinary(Var("_this"), Num(1),
     (a :Double, b:Double) => b / a), "Inverse division")
-  val buttonSet = new RadioButtonOperation(OperationBinary(Var("_this"), Num(1),
-    (a :Double, b:Double) => a ), "Set")
+  val buttonSet = new RadioButtonOperation(OperationSet(ColorExpression(new Color(255, 0, 0, 0))), "Set")
   val buttonPower = new RadioButtonOperation(OperationBinary(Var("_this"), Num(1),
     (a :Double, b:Double) => Math.pow(a, b)), "Power")
   val buttonLog = new RadioButtonOperation(OperationBinary(Var("_this"), Num(1),

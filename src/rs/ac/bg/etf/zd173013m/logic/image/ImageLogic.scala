@@ -33,7 +33,7 @@ class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
   private def updateImage(refreshImage: Boolean, updateSelection: Boolean) = {
     val bufferedImage = new BufferedImage(image.icon.getIconWidth, image.icon.getIconHeight, BufferedImage.TYPE_INT_ARGB)
     if (updateSelection) {
-      for (layer <- scrollPaneSelectionLayer.vectorSelections()) {
+      for (layer <- scrollPaneSelectionLayer.vectorSelections() if layer.active) {
         // TODO: one selection for all layers
         layer.imageOpt.get.resetSelection()
         for (it <- scrollPaneSelectionRectangular.vectorSelections
@@ -43,14 +43,14 @@ class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
     }
     if (refreshImage)
     {
-      for (layer <- scrollPaneSelectionLayer.vectorSelections())
+      for (layer <- scrollPaneSelectionLayer.vectorSelections() if layer.active)
         {
           layer.expr.calculateSelectedPixels(layer.imageOpt.get)
           bufferedImage.setRGB(0, 0, image.icon.getIconWidth, image.icon.getIconHeight,
             layer.imageOpt.get.get256RGBArray, 0, image.icon.getIconWidth)
         }
     }
-    for (layer <- scrollPaneSelectionLayer.vectorSelections())
+    for (layer <- scrollPaneSelectionLayer.vectorSelections() if layer.active)
     {
       bufferedImage.setRGB(0, 0, image.icon.getIconWidth, image.icon.getIconHeight,
         layer.imageOpt.get.get256RGBArray, 0, image.icon.getIconWidth)
