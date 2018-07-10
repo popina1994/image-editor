@@ -11,7 +11,7 @@ import rs.ac.bg.etf.zd173013m.logic.operation.OperationsLogic
 import rs.ac.bg.etf.zd173013m.logic.selection.SelectionLogic
 
 import scala.swing.{event, _}
-import scala.swing.event.{ButtonClicked, ColorChanged}
+import scala.swing.event.{ButtonClicked, ColorChanged, MouseClicked}
 
 object Application extends SimpleSwingApplication {
   def top = new MainFrame {
@@ -70,7 +70,10 @@ object Application extends SimpleSwingApplication {
         val boxPanelOperationButtons = new  BoxPanelOperationButtons(Orientation.Vertical, buttonGroupOperations.buttons)
         buttonGroupOperations.listnerRadioButtonAdded = Option(boxPanelOperationButtons)
         operationsLogic.listenersSeqOp += buttonGroupOperations
-        contents += boxPanelOperationButtons
+        contents += new ScrollPane() {
+          contents = boxPanelOperationButtons
+          preferredSize = new Dimension(100, 330)
+        }
         val textFieldArg1 = new TextArea() {
           preferredSize = new Dimension(30, 50)
         }
@@ -109,6 +112,7 @@ object Application extends SimpleSwingApplication {
             }
             visible = false
           }
+          val checkBoxComposite = new CheckBox("Composite function") { visible = true}
 
           contents += new Button {
             var textId = 0
@@ -119,11 +123,12 @@ object Application extends SimpleSwingApplication {
               case ButtonClicked(_) =>
                 textId = (textId + 1) % textArray.length
                 buttonNext.visible = !buttonNext.visible
+                checkBoxComposite.visible = !checkBoxComposite.visible
                 if (saveOperation)
                 {
                   textFieldArg1.text match {
-                    case arg1 if isEmpty(arg1) => operationsLogic.createSequenceOperations(None)
-                    case arg1 => operationsLogic.createSequenceOperations(Option(arg1))
+                    case arg1 if isEmpty(arg1) => operationsLogic.createSequenceOperations(None, checkBoxComposite.selected)
+                    case arg1 => operationsLogic.createSequenceOperations(Option(arg1), checkBoxComposite.selected)
                   }
                 }
                 saveOperation = !saveOperation
@@ -131,6 +136,7 @@ object Application extends SimpleSwingApplication {
             }
           }
           contents += buttonNext
+          contents += checkBoxComposite
         }
         contents += new BoxPanel(Orientation.Horizontal) {
           contents += new Label("First arg:")

@@ -27,20 +27,18 @@ class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
                               new Point(image.icon.getIconWidth-1, image.icon.getIconHeight-1))
 
   private [this]var expression: Expression = Var("_this")
-  private [this] var expressionCached = false
 
-  private def updateImage() = {
-    /*
-    def applyOperations() = {
-      //val imageTmp = new Image(iconPath, scrollPaneSelectionRectangular.vectorSelections())
-
-      for (row <- 0 until image.icon.getIconHeight; col <- 0 until image.icon.getIconWidth) {
-        val exp = expression.calculate(imageTmp, row, col)
-        image.setRGBADouble(row, col, exp)
-      }
+  private def updateImage(refreshImage: Boolean, updateSelection: Boolean) = {
+    if (updateSelection) {
+      image.resetSelection()
+      for (it <- scrollPaneSelectionRectangular.vectorSelections
+           if it.active) image.setSelected(it.rectangle)
+      image.setSelected(curRectangle)
     }
-    */
-    expression.calculateSelectedPixels(image)
+    if (refreshImage)
+    {
+      expression.calculateSelectedPixels(image)
+    }
 
     val bufferedImage = new BufferedImage(image.icon.getIconWidth, image.icon.getIconHeight, BufferedImage.TYPE_INT_ARGB)
     bufferedImage.setRGB(0, 0, image.icon.getIconWidth, image.icon.getIconHeight,
@@ -66,6 +64,8 @@ class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
       for (it <- scrollPaneSelectionRectangular.vectorSelections
            if it.active) drawRectangle(it.rectangle)
 
+
+
     imageLabel.icon = new ImageIcon(bufferedImage)
   }
 
@@ -74,24 +74,24 @@ class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
     image = new Image(iconPath, scrollPaneSelectionRectangular.vectorSelections())
     curRectangle.leftTop = new Point(0, 0)
     curRectangle.rightBottom = new Point(image.icon.getIconWidth - 1, image.icon.getIconHeight - 1)
-    updateImage()
+    updateImage(true, true)
   }
 
   def replaceSelections(arrayBuffer: ArrayBuffer[SelectionRectangular]) = {
     scrollPaneSelectionRectangular.replaceSelection(arrayBuffer)
-    updateImage()
+    updateImage(true, true)
   }
 
   override def onMouseClick(point: Point): Unit =
     {
       curRectangle.leftTop = point
-      updateImage()
+      updateImage(false, true)
     }
 
   override def onMouseDrag(point: Point): Unit =
     {
       curRectangle.rightBottom = point
-      updateImage()
+      updateImage(false, false)
     }
 
   override def onMouseRelease(point: Point): Unit =
@@ -101,23 +101,23 @@ class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
         scrollPaneSelectionRectangular.addNewSelection(None)
       selection.rectangle = curRectangle
       scrollPaneSelectionRectangular.selectLast()
-      curRectangle = new Rectangle(new Point(0, 0), new Point(image.icon.getIconWidth, image.icon.getIconHeight))
+      curRectangle = new Rectangle(new Point(0, 0), new Point(image.icon.getIconWidth-1, image.icon.getIconHeight-1))
 
-      updateImage()
+      updateImage(false, true)
     }
 
-  override def onSelected(): Unit = updateImage()
+  override def onSelected(): Unit = updateImage(false, true)
 
-  override def onUnselected(): Unit = updateImage()
+  override def onUnselected(): Unit = updateImage(false, true)
 
    def deleteSelected(): Unit = {
      scrollPaneSelectionRectangular.deleteSelected()
-     updateImage()
+     updateImage(false, true)
    }
 
   override def changedExpression(expression: Expression): Unit = {
     this.expression = expression
-    updateImage()
+    updateImage(true, true)
   }
 }
 

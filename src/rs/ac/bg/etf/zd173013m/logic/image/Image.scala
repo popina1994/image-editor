@@ -17,6 +17,8 @@ class Image(iconPath: String, var vectorSelections: Vector[SelectionRectangular]
   private var pixels: Array[Int] = bufferedImage.getRaster.getDataBuffer.asInstanceOf[DataBufferInt].getData
   var pixelsComponents: Array[(Double, Double, Double, Double)] =
     Array.ofDim[(Double, Double, Double, Double)](pixels.length)
+  private val selectedPixels: Array[Boolean] = for (it <- pixels) yield true
+
   convert256toComponents()
 
   private def idx(row: Int, col: Int) = row * icon.getIconWidth + col
@@ -80,6 +82,16 @@ class Image(iconPath: String, var vectorSelections: Vector[SelectionRectangular]
       for (col <-0 until icon.getIconWidth)
         setRGBADoublePixel(row, col, pixelsComponents(idx(row, col)))
     return pixels
+  }
+
+  def isSelected(row: Int, col: Int) = selectedPixels(idx(row, col))
+  def setSelected(row: Int, col: Int, selected: Boolean) = selectedPixels(idx(row, col)) = selected
+  def resetSelection() = for (i <- 0 until selectedPixels.length) selectedPixels(i) = false
+
+  def setSelected(rectangle: Rectangle): Unit = {
+    for (row <- rectangle.leftTop.y to rectangle.rightBottom.y;
+          col <- rectangle.leftTop.x to rectangle.rightBottom.x)
+        setSelected(row, col, true)
   }
 }
 

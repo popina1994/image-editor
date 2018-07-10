@@ -30,39 +30,41 @@ class OperationsLogic (buttonGroupOperations: ButtonGroupOperations){
     }
     return outputArray
   }
-
+  def copyListOperations(listBuffer: List[Expression]): List[Expression] = {
+    var buffer : ListBuffer[Expression]= ListBuffer()
+    listBuffer.foreach((e: Expression) => buffer += e.copyOverride)
+    return buffer.toList
+  }
   def saveSelectedOperations(arg1: Option[String], arg2: Option[Color]): Unit = {
     buttonGroupOperations.getSelected match {
       case Some(operation) =>
         val tmpExp = expr
         expr = Var("_this")
-        val tmpListners = listenersSeqOp
+        val tmpListeners = listenersSeqOp
         listenersSeqOp = ListBuffer()
-        val tmpeListnerOpt = listenerOpt
+        val tmpeListenerOpt = listenerOpt
         listenerOpt = None
 
         executeSelectedOperations(arg1, arg2)
         listSavedOperations += expr
 
         expr = tmpExp
-        listenersSeqOp = tmpListners
-        listenerOpt = tmpeListnerOpt
+        listenersSeqOp = tmpListeners
+        listenerOpt = tmpeListenerOpt
       case None =>
         println("Nothing is selected")
     }
   }
 
-  def createSequenceOperations(arg: Option[String]): Unit = {
+  def createSequenceOperations(arg: Option[String], isComposite: Boolean): Unit = {
     var realName = "1"
     arg match {
       case Some(name) =>
           realName = name
       case None =>
     }
-    for (it <- listenersSeqOp)
-    {
-      it.operationAdded(realName, listSavedOperations.toList)
-    }
+    listenersSeqOp.foreach(_.operationAdded(realName, listSavedOperations.toList))
+    listSavedOperations = ListBuffer()
   }
 
   def executeSelectedOperations(arg1: Option[String], arg2: Option[Color]) = {
@@ -171,9 +173,8 @@ class OperationsLogic (buttonGroupOperations: ButtonGroupOperations){
               case None =>
                 println("Error")
             }
-
           case OperationSequence(_, name, listOperations) =>
-            expr = OperationSequence(expr, name, listOperations)
+            expr = OperationSequence(expr, name, copyListOperations(listOperations))
           case _ => println("Nema medju ponudjenim")
         }
         listenerOpt match {
@@ -182,6 +183,5 @@ class OperationsLogic (buttonGroupOperations: ButtonGroupOperations){
         }
       case None => println("Nothing selected")
     }
-    // Evaluate And Update image`
   }
 }
