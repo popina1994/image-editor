@@ -31,9 +31,6 @@ class Image(iconPath: String, var vectorSelections: Vector[SelectionRectangular]
   private def getB(row: Int, col: Int): Int = pixels(idx(row, col)) & 0xff;
 
   def getADouble(row: Int, col: Int): Double = pixelsComponents(idx(row, col))._4
-  def getRDouble(row: Int, col: Int): Double = pixelsComponents(idx(row, col))._1
-  def getGDouble(row: Int, col: Int): Double = pixelsComponents(idx(row, col))._1
-  def getBDouble(row: Int, col: Int): Double = pixelsComponents(idx(row, col))._1
 
   private def getRGBADoublePixel(row: Int, col: Int) : (Double, Double, Double, Double) =
     return (getR(row, col) / Image.ComponentValues,
@@ -73,6 +70,9 @@ class Image(iconPath: String, var vectorSelections: Vector[SelectionRectangular]
     setBPixel(row, col, (rgba._3 * Image.ComponentValues).toInt)
     setAPixel(row, col, (rgba._4 * Image.ComponentValues).toInt)
   }
+
+  def setADouble(row: Int, col: Int, pixelDouble: Double): Unit=
+    pixelsComponents(idx(row, col)) = pixelsComponents(idx(row, col)).copy(_4 = pixelDouble)
 
   def setRGBADouble(row: Int, col: Int, rgba: (Double, Double, Double, Double),
                     buffer: Array[(Double, Double, Double, Double)]) = {

@@ -28,41 +28,51 @@ class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
                               new Point(0,0),
                               new Point(image.icon.getIconWidth-1, image.icon.getIconHeight-1))
 
-  private [this]var expression: Expression = Var("_this")
-
   private def updateImage(refreshImage: Boolean, updateSelection: Boolean) = {
     val bufferedImage = new BufferedImage(image.icon.getIconWidth, image.icon.getIconHeight, BufferedImage.TYPE_INT_ARGB)
+    val graphics = bufferedImage.createGraphics()
     if (updateSelection) {
+      // TODO: one selection for all layers
       for (layer <- scrollPaneSelectionLayer.vectorSelections() if layer.active) {
-        // TODO: one selection for all layers
-        layer.imageOpt.get.resetSelection()
-        for (it <- scrollPaneSelectionRectangular.vectorSelections
-             if it.active) layer.imageOpt.get.setSelected(it.rectangle)
-        //layer.imageOpt.get.setSelected(curRectangle)
+        layer.resetSelectionPixels()
+        if (scrollPaneSelectionRectangular.vectorSelections().isEmpty)
+        {
+          layer.setSelectedPixels(curRectangle)
+        }
+        else
+        {
+          for (it <- scrollPaneSelectionRectangular.vectorSelections
+               if it.active) layer.setSelectedPixels(it.rectangle)
+        }
       }
     }
+
     if (refreshImage)
     {
       for (layer <- scrollPaneSelectionLayer.vectorSelections() if layer.active)
-        {
-          layer.expr.calculateSelectedPixels(layer.imageOpt.get)
-          bufferedImage.setRGB(0, 0, image.icon.getIconWidth, image.icon.getIconHeight,
-            layer.imageOpt.get.get256RGBArray, 0, image.icon.getIconWidth)
+      {
+        layer.calculateSelectedPixels()
+        layer.get256Array() match{
+          case Some(array) =>
+            /*
+            bufferedImage.setRGB(0, 0, image.icon.getIconWidth, image.icon.getIconHeight,
+             array, 0, image.icon.getIconWidth)
+             */
+            val bufferedImageTmp = new BufferedImage(image.icon.getIconWidth, image.icon.getIconHeight, BufferedImage.TYPE_INT_ARGB)
+
+            bufferedImageTmp.setRGB(0, 0, image.icon.getIconWidth, image.icon.getIconHeight,
+              array, 0, image.icon.getIconWidth)
+            graphics.drawImage(bufferedImageTmp, 0, 0, image.icon.getIconWidth,image.icon.getIconHeight, null)
+          case None => println("Something is messed up")
         }
-    }
-    for (layer <- scrollPaneSelectionLayer.vectorSelections() if layer.active)
-    {
-      bufferedImage.setRGB(0, 0, image.icon.getIconWidth, image.icon.getIconHeight,
-        layer.imageOpt.get.get256RGBArray, 0, image.icon.getIconWidth)
+      }
     }
 
 
-
-    val graphics = bufferedImage.createGraphics()
     val rectColor = new Color(0, 0, 255, 255)
     graphics.setColor(rectColor)
     // TODO: Understand this line
-    //graphics.setComposite(AlphaComposite.Src)
+    graphics.setComposite(AlphaComposite.Src)
     curRectangle.order()
 
     drawRectangle(curRectangle)
@@ -99,7 +109,7 @@ class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
   override def onMouseClick(point: Point): Unit =
     {
       curRectangle.leftTop = point
-      updateImage(false, true)
+      updateImage(true, true)
     }
 
   override def onMouseDrag(point: Point): Unit =
@@ -117,7 +127,7 @@ class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
       scrollPaneSelectionRectangular.selectLast()
       curRectangle = new Rectangle(new Point(0, 0), new Point(image.icon.getIconWidth-1, image.icon.getIconHeight-1))
 
-      updateImage(false, true)
+      updateImage(true, true)
     }
 
   // ListViewListener -> Selection Changed listener
@@ -134,9 +144,9 @@ class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
     updateImage(true, true)
   }
   // LayerChangeListener
-  override def onAdded(): Unit = ???
-
-  override def onRemoved(): Unit = ???
+  override def onChanged(): Unit = {
+    updateImage(true, false)
+  }
 }
 
 object ImageLogic{

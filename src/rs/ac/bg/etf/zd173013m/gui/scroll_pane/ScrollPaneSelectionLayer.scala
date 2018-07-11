@@ -6,7 +6,7 @@ import rs.ac.bg.etf.zd173013m.logic.selection.{SelectionLayer, SelectionRectangu
 import scala.collection.immutable.Vector
 
 class ScrollPaneSelectionLayer() extends ScrollPaneSelection {
-  addNewSelection(Option("default")).updateImage(Image.generateBlackImage())
+  addNewSelection(Option("default"))
   protected override def createSelection(nameOpt: Option[String]): SelectionLayer =
     nameOpt match {
       case Some(nameVal) => new SelectionLayer(nameVal, None)
@@ -15,7 +15,9 @@ class ScrollPaneSelectionLayer() extends ScrollPaneSelection {
 
   override def addNewSelection(name: Option[String]): SelectionLayer =
   {
-    return  super.addNewSelection(name).asInstanceOf[SelectionLayer]
+    val newSelection = super.addNewSelection(name).asInstanceOf[SelectionLayer]
+    newSelection.updateImage(Image.generateBlackImage())
+    return newSelection
   }
 
   override  def vectorSelections(): Vector[SelectionLayer] = {

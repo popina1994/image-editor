@@ -12,7 +12,7 @@ import rs.ac.bg.etf.zd173013m.logic.operation.OperationsLogic
 import rs.ac.bg.etf.zd173013m.logic.selection.SelectionLogic
 
 import scala.swing.{event, _}
-import scala.swing.event.{ButtonClicked, ColorChanged, MouseClicked}
+import scala.swing.event.{ButtonClicked, ColorChanged, MouseClicked, ValueChanged}
 
 object Application extends SimpleSwingApplication {
   def top = new MainFrame {
@@ -29,8 +29,46 @@ object Application extends SimpleSwingApplication {
     private val operationsLogic = new OperationsLogic(buttonGroupOperations, scrollPaneSelectionLayer)
     operationsLogic.listenerOpt = Option(imageLogic)
     private val layerLogic = new LayerLogic(scrollPaneSelectionLayer)
+    layerLogic.layerChangeListener = Option(imageLogic)
 
     contents = new FlowPanel {
+      contents += new BoxPanel(Orientation.Vertical) {
+        hGap = 3
+        vGap = 3
+        contents += scrollPaneSelectionLayer.scrollPane
+        contents += new Button {
+          text = "New"
+          reactions += {
+            case ButtonClicked(_) =>
+              println("Created new layer")
+              var result = Dialog.showInput(contents.head, "Input name for new layer", initial="")
+              result = if (isEmpty(result.get)) (None) else result
+              layerLogic.newSelection(result)
+          }
+          preferredSize = new Dimension(30, 30)
+        }
+        contents += new Button {
+          text = "Delete"
+          reactions += {
+            case ButtonClicked(_) => scrollPaneSelectionLayer.deleteSelected()
+          }
+          preferredSize = new Dimension(20, 30)
+        }
+        contents += new Slider  {
+          min = 0
+          max = LayerLogic.MaxSlider
+          minorTickSpacing = 5
+          preferredSize = new Dimension(100, 30)
+          paintTicks = true
+
+          reactions += {
+            case ValueChanged(a) =>
+              layerLogic.updateTransparency(value)
+
+          }
+        }
+      }
+
       contents += imageLabel
       contents += new BoxPanel(Orientation.Vertical) {
         hGap = 3
@@ -44,6 +82,7 @@ object Application extends SimpleSwingApplication {
           preferredSize = new Dimension(20, 30)
         }
       }
+
       contents += new BoxPanel(Orientation.Vertical) {
         hGap = 3
         vGap = 3
@@ -67,29 +106,7 @@ object Application extends SimpleSwingApplication {
           preferredSize = new Dimension(20, 30)
         }
       }
-      contents += new BoxPanel(Orientation.Vertical) {
-        hGap = 3
-        vGap = 3
-        contents += scrollPaneSelectionLayer.scrollPane
-        contents += new Button {
-          text = "New"
-          reactions += {
-            case ButtonClicked(_) =>
-              println("Created new layer")
-              var result = Dialog.showInput(contents.head, "Input name for new layer", initial="")
-              result = if (isEmpty(result.get)) (None) else result
-              layerLogic.newSelection(result)
-          }
-          preferredSize = new Dimension(30, 30)
-        }
-        contents += new Button {
-          text = "Delete"
-          reactions += {
-            case ButtonClicked(_) => scrollPaneSelectionSelection.deleteSelected()
-          }
-          preferredSize = new Dimension(20, 30)
-        }
-      }
+
       contents += new BoxPanel(Orientation.Vertical) {
         val boxPanelOperationButtons = new  BoxPanelOperationButtons(Orientation.Vertical, buttonGroupOperations.buttons)
         buttonGroupOperations.listnerRadioButtonAdded = Option(boxPanelOperationButtons)

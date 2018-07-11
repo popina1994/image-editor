@@ -7,14 +7,39 @@ import rs.ac.bg.etf.zd173013m.logic.selection.SelectionLayer
 import scala.swing.Color
 
 class LayerLogic(val scrollPaneSelectionLayer: ScrollPaneSelectionLayer)  extends ListViewListener{
+  var layerChangeListener : Option[LayerChangeListener] = None
+
   def newSelection(name: Option[String]): Unit = {
     val newSelect: SelectionLayer =  scrollPaneSelectionLayer.addNewSelection(name)
   }
   scrollPaneSelectionLayer.listViewSelection.listenerOpt = Option(this)
 
-  override def onSelected(): Unit = {
-    println("Layer changed")
+  def updateImage(): Unit = {
+    layerChangeListener match {
+      case None=>
+      case Some(listener) =>
+        listener.onChanged()
+    }
   }
 
-  override def onUnselected(): Unit = println("Layer changed")
+
+  override def onSelected(): Unit = {
+    println("Layer changed")
+    updateImage()
+  }
+
+  def updateTransparency(alpha: Int) = {
+    for (layer <- scrollPaneSelectionLayer.vectorSelections() if layer.active) {
+      layer.updateTransparency(alpha / LayerLogic.MaxSlider.toDouble)
+    }
+    updateImage()
+  }
+
+  override def onUnselected(): Unit = {
+    updateImage()
+  }
+}
+
+object LayerLogic {
+  val MaxSlider = 100
 }
