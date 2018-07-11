@@ -2,15 +2,12 @@ package rs.ac.bg.etf.zd173013m.logic.layer
 
 import rs.ac.bg.etf.zd173013m.gui.scroll_pane.ScrollPaneSelectionLayer
 import rs.ac.bg.etf.zd173013m.gui.scroll_pane.list_view.ListViewListener
-import rs.ac.bg.etf.zd173013m.logic.selection.SelectionLayer
-
-import scala.swing.Color
 
 class LayerLogic(val scrollPaneSelectionLayer: ScrollPaneSelectionLayer)  extends ListViewListener{
   var layerChangeListener : Option[LayerChangeListener] = None
 
   def newSelection(name: Option[String]): Unit = {
-    val newSelect: SelectionLayer =  scrollPaneSelectionLayer.addNewSelection(name)
+    scrollPaneSelectionLayer.addNewSelection(name)
   }
   scrollPaneSelectionLayer.listViewSelection.listenerOpt = Option(this)
 
@@ -21,7 +18,6 @@ class LayerLogic(val scrollPaneSelectionLayer: ScrollPaneSelectionLayer)  extend
         listener.onChanged()
     }
   }
-
 
   override def onSelected(): Unit = {
     println("Layer changed")

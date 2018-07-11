@@ -7,7 +7,7 @@ import rs.ac.bg.etf.zd173013m.logic.selection.SelectionRectangular
 
 import scala.swing.Color
 
-class Image(iconPath: String, var vectorSelections: Vector[SelectionRectangular]) {
+class Image(iconPath: String) {
   val icon = new ImageIcon(iconPath)
   private[this] val bufferedImage = new BufferedImage(icon.getIconWidth, icon.getIconHeight, BufferedImage.TYPE_INT_ARGB)
   private[this] val g = bufferedImage.createGraphics()
@@ -102,6 +102,6 @@ object Image {
 
   def generateBlackImage():Image=
   {
-    return new Image(ImageLogic.DefaultFileName, Vector())
+    return new Image(ImageLogic.DefaultFileName)
   }
 }

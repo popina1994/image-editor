@@ -17,13 +17,15 @@ import rs.ac.bg.etf.zd173013m.logic.selection.SelectionRectangular
 import scala.collection.mutable.ArrayBuffer
 import scala.swing.Point
 
-class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
-                 var scrollPaneSelectionRectangular: ScrollPaneSelectionRectangular,
-                 var scrollPaneSelectionLayer: ScrollPaneSelectionLayer)
+class ImageLogic(val imageLabel: ImageLabel, var iconPath: String,
+                 scrollPaneSelectionRectangular: ScrollPaneSelectionRectangular,
+                 scrollPaneSelectionLayer: ScrollPaneSelectionLayer)
             extends ImageLabelListener with  ListViewListener with OperationsListener with LayerChangeListener{
-  var image: Image = new Image(iconPath, scrollPaneSelectionRectangular.vectorSelections())
+  var image: Image = new Image(iconPath)
+
   imageLabel.listenerOpt = Option(this)
   scrollPaneSelectionRectangular.listViewSelection.listenerOpt = Option(this)
+
   var curRectangle: Rectangle = new Rectangle(
                               new Point(0,0),
                               new Point(image.icon.getIconWidth-1, image.icon.getIconHeight-1))
@@ -54,10 +56,6 @@ class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
         layer.calculateSelectedPixels()
         layer.get256Array() match{
           case Some(array) =>
-            /*
-            bufferedImage.setRGB(0, 0, image.icon.getIconWidth, image.icon.getIconHeight,
-             array, 0, image.icon.getIconWidth)
-             */
             val bufferedImageTmp = new BufferedImage(image.icon.getIconWidth, image.icon.getIconHeight, BufferedImage.TYPE_INT_ARGB)
 
             bufferedImageTmp.setRGB(0, 0, image.icon.getIconWidth, image.icon.getIconHeight,
@@ -94,9 +92,10 @@ class ImageLogic(var imageLabel: ImageLabel, var iconPath: String,
 
   def changeIcon(iconPath: String) = {
     this.iconPath = iconPath
-    image = new Image(iconPath, scrollPaneSelectionRectangular.vectorSelections())
+    image = new Image(iconPath)
     curRectangle.leftTop = new Point(0, 0)
     curRectangle.rightBottom = new Point(image.icon.getIconWidth - 1, image.icon.getIconHeight - 1)
+    scrollPaneSelectionLayer.vectorSelections().head.imageOpt = Option(new Image(iconPath))
     updateImage(true, true)
   }
 
