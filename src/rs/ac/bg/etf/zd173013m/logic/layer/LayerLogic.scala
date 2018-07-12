@@ -20,7 +20,6 @@ class LayerLogic(val scrollPaneSelectionLayer: ScrollPaneSelectionLayer)  extend
   }
 
   override def onSelected(): Unit = {
-    println("Layer changed")
     updateImage()
   }
 

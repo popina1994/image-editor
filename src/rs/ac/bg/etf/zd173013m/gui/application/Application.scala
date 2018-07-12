@@ -19,6 +19,8 @@ object Application extends SimpleSwingApplication {
     preferredSize = getDefaultToolkit.getScreenSize
     val buttonGroupOperations = new ButtonGroupOperations
 
+    var flowPanelApplication: FlowPanelApplication = null
+
     def initApplication(fileName: String): FlowPanelApplication= {
       val imageLabel = new ImageLabel(fileName)
       // UPDATE
@@ -37,19 +39,26 @@ object Application extends SimpleSwingApplication {
       val layerLogic = new LayerLogic(scrollPaneSelectionLayer)
       layerLogic.layerChangeListener = Option(imageLogic)
 
-      val flowPanelApplication = new FlowPanelApplication(scrollPaneSelectionRectangular, scrollPaneSelectionSelection,
+      flowPanelApplication = new FlowPanelApplication(scrollPaneSelectionRectangular, scrollPaneSelectionSelection,
         scrollPaneSelectionLayer, imageLogic, selectionLogic, layerLogic, imageLabel, buttonGroupOperations, operationsLogic)
       return flowPanelApplication
     }
 
-    contents = initApplication(ImageLogic.DefaultFileName)
 
     def updateContentsMainFrame(newComponent: Component) {
       contents = newComponent
     }
-
+    updateContentsMainFrame(initApplication(ImageLogic.DefaultFileName))
     menuBar = new MenuBar {
       contents += new Menu("File") {
+        contents += new MenuItem(new Action("New")
+        {
+          def apply
+          {
+            println("New")
+            updateContentsMainFrame(initApplication(ImageLogic.DefaultFileName))
+          }
+        })
         contents += new MenuItem(new Action("Open")
           {
             def apply
@@ -65,7 +74,18 @@ object Application extends SimpleSwingApplication {
           })
         contents += new MenuItem(new Action("Save") {
           override def apply(): Unit = {
-            println("Save")
+            val chooser = new FileChooser(new File("C:/Users/popina/IdeaProjects/ImageEditor/assets/"))
+            val result = chooser.showSaveDialog(null)
+            if (result == FileChooser.Result.Approve) {
+              println(chooser.selectedFile)
+              try {
+                flowPanelApplication.imageLogic.saveImage(chooser.selectedFile.getAbsolutePath)
+              }
+              catch {
+                case exc: Exception=>
+                  println("Error during saving")
+              }
+            }
           }
         })
       }

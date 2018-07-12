@@ -4,8 +4,8 @@ import rs.ac.bg.etf.zd173013m.gui.scroll_pane.list_view.ListViewListener
 import rs.ac.bg.etf.zd173013m.gui.scroll_pane.{ScrollPaneSelectionRectangular, ScrollPaneSelectionSelection}
 import rs.ac.bg.etf.zd173013m.logic.image.ImageLogic
 
-case class SelectionLogic(val imageLogic: ImageLogic, val scrollPaneSelectionSelection: ScrollPaneSelectionSelection,
-                          val scrollPaneSelectionRectangular: ScrollPaneSelectionRectangular) extends ListViewListener{
+case class SelectionLogic(imageLogic: ImageLogic, scrollPaneSelectionSelection: ScrollPaneSelectionSelection,
+                          scrollPaneSelectionRectangular: ScrollPaneSelectionRectangular) extends ListViewListener{
   scrollPaneSelectionSelection.listViewSelection.listenerOpt = Option(this)
 
   def addNewSelection(name: Option[String]) = {
@@ -22,8 +22,10 @@ case class SelectionLogic(val imageLogic: ImageLogic, val scrollPaneSelectionSel
   def deleteSelected() = {
     scrollPaneSelectionSelection.deleteSelected()
     scrollPaneSelectionRectangular.generateNewData()
+    updateSelections()
   }
 
+  // This function works because I allow only one selection to be chosen.
   private def updateSelections():Unit=
   {
     scrollPaneSelectionSelection.

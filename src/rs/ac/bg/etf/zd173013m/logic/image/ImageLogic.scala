@@ -12,12 +12,24 @@ import rs.ac.bg.etf.zd173013m.logic.operation.OperationsListener
 import rs.ac.bg.etf.zd173013m.logic.selection.SelectionRectangular
 
 import scala.collection.mutable.ArrayBuffer
+import java.io.File
+
+import javax.imageio.ImageIO
+
 import scala.swing.Point
 
 class ImageLogic(imageLabel: ImageLabel, iconPath: String,
                  scrollPaneSelectionRectangular: ScrollPaneSelectionRectangular,
                  scrollPaneSelectionLayer: ScrollPaneSelectionLayer)
             extends ImageLabelListener with  ListViewListener with OperationsListener with LayerChangeListener{
+  def saveImage(imagePath: String) =  {
+    val bufferedImage = updateImage(true, false, true)
+    val file = new File(imagePath)
+    val ext = imagePath.split('.')
+    ImageIO.write(bufferedImage, ext.last, file)
+
+  }
+
   val image: Image = new Image(iconPath)
 
   imageLabel.listenerOpt = Option(this)
@@ -27,7 +39,7 @@ class ImageLogic(imageLabel: ImageLabel, iconPath: String,
                               new Point(0,0),
                               new Point(image.icon.getIconWidth-1, image.icon.getIconHeight-1))
 
-  private def updateImage(refreshImage: Boolean, updateSelection: Boolean) = {
+  private def updateImage(refreshImage: Boolean, updateSelection: Boolean, saveImage: Boolean):BufferedImage = {
     val bufferedImage = new BufferedImage(image.icon.getIconWidth, image.icon.getIconHeight, BufferedImage.TYPE_INT_ARGB)
     val graphics = bufferedImage.createGraphics()
     image.icon.paintIcon(null, graphics, 0, 0)
@@ -68,10 +80,12 @@ class ImageLogic(imageLabel: ImageLabel, iconPath: String,
     graphics.setColor(rectColor)
     graphics.setComposite(AlphaComposite.Src)
     curRectangle.order()
-
-    drawRectangle(curRectangle)
-    drawActiveRectangles()
-
+    if (!saveImage)
+    {
+      drawRectangle(curRectangle)
+      drawActiveRectangles()
+      imageLabel.icon = new ImageIcon(bufferedImage)
+    }
     graphics.dispose()
 
     def drawRectangle(rect: Rectangle)={
@@ -83,25 +97,25 @@ class ImageLogic(imageLabel: ImageLabel, iconPath: String,
       for (it <- scrollPaneSelectionRectangular.vectorSelections
            if it.active) drawRectangle(it.rectangle)
 
-    imageLabel.icon = new ImageIcon(bufferedImage)
+    return bufferedImage
   }
 
   def replaceSelections(arrayBuffer: ArrayBuffer[SelectionRectangular]) = {
     scrollPaneSelectionRectangular.replaceSelection(arrayBuffer)
-    updateImage(true, true)
+    updateImage(true, true, false)
   }
 
   // Image label listener
   override def onMouseClick(point: Point): Unit =
     {
       curRectangle.leftTop = point
-      updateImage(true, true)
+      updateImage(true, true, false)
     }
 
   override def onMouseDrag(point: Point): Unit =
     {
       curRectangle.rightBottom = point
-      updateImage(false, false)
+      updateImage(false, false, false)
     }
 
   override def onMouseRelease(point: Point): Unit =
@@ -113,25 +127,25 @@ class ImageLogic(imageLabel: ImageLabel, iconPath: String,
       scrollPaneSelectionRectangular.selectLast()
       curRectangle = new Rectangle(new Point(0, 0), new Point(image.icon.getIconWidth-1, image.icon.getIconHeight-1))
 
-      updateImage(true, true)
+      updateImage(true, true, false)
     }
 
   // ListViewListener -> Selection Changed listener
-  override def onSelected(): Unit = updateImage(true, true)
+  override def onSelected(): Unit = updateImage(true, true, false)
 
-  override def onUnselected(): Unit = updateImage(true, true)
+  override def onUnselected(): Unit = updateImage(true, true, false)
 
    def deleteSelected(): Unit = {
      scrollPaneSelectionRectangular.deleteSelected()
-     updateImage(true, true)
+     updateImage(true, true, false)
    }
   // OperationsAddedListener
   override def appliedExpression(): Unit = {
-    updateImage(true, true)
+    updateImage(true, true, false)
   }
   // LayerChangeListener
   override def onChanged(): Unit = {
-    updateImage(true, false)
+    updateImage(true, false, false)
   }
 }
 

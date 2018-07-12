@@ -14,7 +14,7 @@ import scala.swing.{BoxPanel, Button, CheckBox, Color, ColorChooser, Dialog, Dim
 class FlowPanelApplication(scrollPaneSelectionRectangular: ScrollPaneSelectionRectangular,
                            scrollPaneSelectionSelection: ScrollPaneSelectionSelection,
                            scrollPaneSelectionLayer: ScrollPaneSelectionLayer,
-                           imageLogic: ImageLogic, selectionLogic: SelectionLogic,
+                           val imageLogic: ImageLogic, selectionLogic: SelectionLogic,
                            layerLogic: LayerLogic,
                            imageLabel: ImageLabel,
                            buttonGroupOperations: ButtonGroupOperations,
