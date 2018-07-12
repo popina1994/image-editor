@@ -14,12 +14,10 @@ class Image(iconPath: String) {
   icon.paintIcon(null, g, 0, 0)
   g.dispose()
 
-  var writeTmp = false
-
   private val pixels: Array[Int] = bufferedImage.getRaster.getDataBuffer.asInstanceOf[DataBufferInt].getData
   var pixelsComponents: Array[(Double, Double, Double, Double)] =
     Array.ofDim[(Double, Double, Double, Double)](pixels.length)
-  private val selectedPixels: Array[Boolean] = for (it <- pixels) yield true
+  private val selectedPixels: Array[Boolean] = for (_ <- pixels) yield true
 
   convert256toComponents()
 

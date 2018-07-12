@@ -214,7 +214,8 @@ object Operations {
                              OperationGrayScale(_) | OperationComposite(_, _, _)
                             | OperationSet(_)) if !isFirst =>
           func1 = func1.andThen(it.getFun4)
-        case _ => println("SOmething is really bad")
+        case _ => if (!isFirst)
+          println("Bad initialization of composite function")
       }
       isFirst = false
     }
@@ -258,7 +259,7 @@ object Operations {
         listBuffer += tmp
       }
       return this.copy(list =listBuffer.toList)
-  }
+    }
 
     override def funcCalculateRGBA(image: Image, row: Int, col: Int): (Double, Double, Double, Double) = ???
     override def getFun4: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = ???

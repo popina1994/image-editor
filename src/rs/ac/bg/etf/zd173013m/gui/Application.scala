@@ -57,6 +57,7 @@ object Application extends SimpleSwingApplication {
         contents += new Slider  {
           min = 0
           max = LayerLogic.MaxSlider
+          value = LayerLogic.MaxSlider
           minorTickSpacing = 5
           preferredSize = new Dimension(100, 30)
           paintTicks = true
@@ -133,10 +134,17 @@ object Application extends SimpleSwingApplication {
 
             reactions += {
               case ButtonClicked(_) =>
-                textFieldArg1.text match {
-                  // TODO: Checks, dialogs...
-                  case arg1 if isEmpty(arg1) => operationsLogic.executeSelectedOperations(None, chosenColor)
-                  case arg1 => operationsLogic.executeSelectedOperations(Option(arg1), chosenColor)
+                try {
+                  textFieldArg1.text match {
+                    // TODO: Checks, dialogs...
+                    case arg1 if isEmpty(arg1) => operationsLogic.executeSelectedOperations(None, chosenColor)
+                    case arg1 => operationsLogic.executeSelectedOperations(Option(arg1), chosenColor)
+
+                  }
+                }
+                catch  {
+                  case exception: Exception=>
+                    println("Wrong argument")
                 }
             }
             println("Applied operation")

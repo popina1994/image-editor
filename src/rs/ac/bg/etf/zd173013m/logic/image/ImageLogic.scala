@@ -130,13 +130,13 @@ class ImageLogic(val imageLabel: ImageLabel, var iconPath: String,
     }
 
   // ListViewListener -> Selection Changed listener
-  override def onSelected(): Unit = updateImage(false, true)
+  override def onSelected(): Unit = updateImage(true, true)
 
-  override def onUnselected(): Unit = updateImage(false, true)
+  override def onUnselected(): Unit = updateImage(true, true)
 
    def deleteSelected(): Unit = {
      scrollPaneSelectionRectangular.deleteSelected()
-     updateImage(false, true)
+     updateImage(true, true)
    }
   // OperationsAddedListener
   override def appliedExpression(): Unit = {

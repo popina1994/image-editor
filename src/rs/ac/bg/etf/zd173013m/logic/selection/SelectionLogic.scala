@@ -4,8 +4,8 @@ import rs.ac.bg.etf.zd173013m.gui.scroll_pane.list_view.ListViewListener
 import rs.ac.bg.etf.zd173013m.gui.scroll_pane.{ScrollPaneSelectionRectangular, ScrollPaneSelectionSelection}
 import rs.ac.bg.etf.zd173013m.logic.image.ImageLogic
 
-case class SelectionLogic(val image: ImageLogic, val scrollPaneSelectionSelection: ScrollPaneSelectionSelection,
-                     val scrollPaneSelectionRectangular: ScrollPaneSelectionRectangular) extends ListViewListener{
+case class SelectionLogic(val imageLogic: ImageLogic, val scrollPaneSelectionSelection: ScrollPaneSelectionSelection,
+                          val scrollPaneSelectionRectangular: ScrollPaneSelectionRectangular) extends ListViewListener{
   scrollPaneSelectionSelection.listViewSelection.listenerOpt = Option(this)
   private var firstCreate: Boolean = true
 
@@ -17,7 +17,7 @@ case class SelectionLogic(val image: ImageLogic, val scrollPaneSelectionSelectio
       scrollPaneSelectionRectangular.generateNewData()
     }
     addNewSelection()
-    image.replaceSelections(scrollPaneSelectionRectangular.getRectSelections())
+    imageLogic.replaceSelections(scrollPaneSelectionRectangular.getRectSelections())
     firstCreate = false
   }
 
@@ -27,7 +27,7 @@ case class SelectionLogic(val image: ImageLogic, val scrollPaneSelectionSelectio
       vectorSelections().
       find((s: SelectionSelection) => s.active)
     match {
-      case Some(selected) => image.replaceSelections(selected.rectangles)
+      case Some(selected) => imageLogic.replaceSelections(selected.rectangles)
       case None => println("Nothing is chosen")
     }
   }

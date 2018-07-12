@@ -1,6 +1,6 @@
 package rs.ac.bg.etf.zd173013m.logic.operation
 
-import rs.ac.bg.etf.zd173013m.gui.radio_operations.ButtonGroupOperations
+import rs.ac.bg.etf.zd173013m.gui.radio_operations.{ButtonGroupOperations, RadioButtonOperation}
 import rs.ac.bg.etf.zd173013m.gui.scroll_pane.ScrollPaneSelectionLayer
 import rs.ac.bg.etf.zd173013m.logic.operation.Operations._
 
@@ -8,8 +8,6 @@ import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.swing.Color
 
 class OperationsLogic (buttonGroupOperations: ButtonGroupOperations, scrollPaneSelectionLayer: ScrollPaneSelectionLayer){
-  var expr: Expression = new Var("_this")
-  var recordOperation = false
   var listenerOpt: Option[OperationsListener] = None
   var listenersSeqOp: ListBuffer[OperationAddedListener] = ListBuffer()
 
@@ -40,20 +38,22 @@ class OperationsLogic (buttonGroupOperations: ButtonGroupOperations, scrollPaneS
 
   def saveSelectedOperations(arg1: Option[String], arg2: Option[Color]): Unit = {
     buttonGroupOperations.getSelected match {
-      case Some(operation) =>
-        val tmpExp = expr
-        expr = Var("_this")
+      case Some(_) =>
         val tmpListeners = listenersSeqOp
         listenersSeqOp = ListBuffer()
-        val tmpeListenerOpt = listenerOpt
+        val tmpListenerOpt = listenerOpt
         listenerOpt = None
-
-        executeSelectedOperations(arg1, arg2)
-        listSavedOperations += expr
-
-        expr = tmpExp
+        buttonGroupOperations.getSelected match {
+          case Some(operation) =>
+              getClickedExpression(operation, arg1, arg2, Var("_this")) match {
+              case Some(expr) =>
+                listSavedOperations += expr
+              case None =>
+            }
+          case None =>
+        }
         listenersSeqOp = tmpListeners
-        listenerOpt = tmpeListenerOpt
+        listenerOpt = tmpListenerOpt
       case None =>
         println("Nothing is selected")
     }
@@ -71,46 +71,57 @@ class OperationsLogic (buttonGroupOperations: ButtonGroupOperations, scrollPaneS
     listSavedOperations = ListBuffer()
   }
 
+  def getClickedExpression(operation: RadioButtonOperation, arg1: Option[String], arg2: Option[Color],
+                           curExpr: Expression): Option[Expression] = {
+
+    operation.expression match {
+      case OperationBinary(_, num, func) =>
+        arg1 match {
+          case Some(value) =>
+            Option(OperationBinary(curExpr, Num(value.toDouble), func))
+          case None =>
+            Option(OperationBinary(curExpr, num, func))
+        }
+      case OperationSet(_) =>
+        arg2 match {
+          case Some(value) =>
+            Option(OperationSet(ColorExpression(value)))
+          case None =>
+            Option(OperationSet(ColorExpression(new Color(255, 0, 0, 255))))
+        }
+      case OperationGrayScale(_) =>
+        Option(OperationGrayScale(curExpr))
+      case OperationMedian(_, _) =>
+        arg1 match {
+          case Some(value) =>
+            Option(OperationMedian(curExpr, value.toInt))
+          case None =>
+            Option(OperationMedian(curExpr, 1))
+        }
+      case OperationPond(_, _) =>
+        arg1 match {
+          case Some(value) =>
+            Option(OperationPond(curExpr, convertStringToPonder(value)))
+          case None =>
+            None
+        }
+      case OperationSequence(_, name, listOperations) =>
+        Option(OperationSequence(curExpr, name, copyListOperations(listOperations)))
+      case OperationComposite(_, name, listOperations) =>
+        Option(OperationComposite(curExpr, name, copyListOperations(listOperations)))
+      case _ => println("Operations is not among given ones")
+        None
+    }
+  }
+
   def executeSelectedOperations(arg1: Option[String], arg2: Option[Color]) = {
     buttonGroupOperations.getSelected match {
       case Some(operation) =>
         for (layer <- scrollPaneSelectionLayer.vectorSelections() if layer.active) {
-          operation.expression match {
-            case OperationBinary(_, num, func) =>
-              arg1 match {
-                case Some(value) =>
-                  layer.expr = OperationBinary(layer.expr, Num(value.toDouble), func)
-                case None =>
-                  layer.expr = OperationBinary(layer.expr, num, func)
-              }
-            case OperationSet(_) =>
-              arg2 match {
-                case Some(value) =>
-                    layer.expr = OperationSet(ColorExpression(value))
-                case None =>
-                  layer.expr = OperationSet(ColorExpression(new Color(255, 0, 0, 255)))
-              }
-            case OperationGrayScale(_) =>
-              layer.expr = OperationGrayScale(layer.expr)
-            case OperationMedian(_, _) =>
-              arg1 match {
-                case Some(value) =>
-                  layer.expr = OperationMedian(layer.expr, value.toInt)
-                case None =>
-                  layer.expr = OperationMedian(layer.expr, 1)
-              }
-            case OperationPond(_, _) =>
-              arg1 match {
-                case Some(value) =>
-                  layer.expr = OperationPond(layer.expr, convertStringToPonder(value))
-                case None =>
-                  println("Error")
-              }
-            case OperationSequence(_, name, listOperations) =>
-              layer.expr = OperationSequence(layer.expr, name, copyListOperations(listOperations))
-            case OperationComposite(_, name, listOperations) =>
-              layer.expr = OperationComposite(layer.expr, name, copyListOperations(listOperations))
-            case _ => println("Operations is not among given ones")
+          getClickedExpression(operation, arg1, arg2, layer.expr) match {
+            case Some(expr) =>
+              layer.expr = expr
+            case None => println("Something is really bad")
           }
       }
       listenerOpt match {
