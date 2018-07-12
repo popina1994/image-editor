@@ -22,12 +22,12 @@ class ImageLogic(imageLabel: ImageLabel, iconPath: String,
                  scrollPaneSelectionRectangular: ScrollPaneSelectionRectangular,
                  scrollPaneSelectionLayer: ScrollPaneSelectionLayer)
             extends ImageLabelListener with  ListViewListener with OperationsListener with LayerChangeListener{
+
   def saveImage(imagePath: String) =  {
     val bufferedImage = updateImage(true, false, true)
     val file = new File(imagePath)
     val ext = imagePath.split('.')
     ImageIO.write(bufferedImage, ext.last, file)
-
   }
 
   val image: Image = new Image(iconPath)

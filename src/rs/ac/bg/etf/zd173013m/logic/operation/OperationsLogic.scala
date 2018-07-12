@@ -75,12 +75,12 @@ class OperationsLogic (buttonGroupOperations: ButtonGroupOperations, scrollPaneS
                            curExpr: Expression): Option[Expression] = {
 
     operation.expression match {
-      case OperationBinary(_, num, func) =>
+      case OperationBinary(_, num, func2, func4) =>
         arg1 match {
           case Some(value) =>
-            Option(OperationBinary(curExpr, Num(value.toDouble), func))
+            Option(OperationBinary(curExpr, Num(value.toDouble), func2, func4))
           case None =>
-            Option(OperationBinary(curExpr, num, func))
+            Option(OperationBinary(curExpr, num, func2, func4))
         }
       case OperationSet(_) =>
         arg2 match {
@@ -107,8 +107,10 @@ class OperationsLogic (buttonGroupOperations: ButtonGroupOperations, scrollPaneS
         }
       case OperationSequence(_, name, listOperations) =>
         Option(OperationSequence(curExpr, name, copyListOperations(listOperations)))
+        /*
       case OperationComposite(_, name, listOperations) =>
         Option(OperationComposite(curExpr, name, copyListOperations(listOperations)))
+        */
       case _ => println("Operations is not among given ones")
         None
     }

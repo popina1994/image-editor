@@ -26,11 +26,6 @@ object Operations {
     def funcCalculateRGBA(image: Image, row: Int, col: Int):
     (Double, Double, Double, Double)
 
-    protected def rgbaapplyTorgb(fun: (Double) => Double) =
-      (value: (Double, Double, Double, Double)) => {
-        (fun(value._1), fun(value._2), fun(value._3), value._4)
-    }
-
     private def calculate(image: Image, row: Int, col: Int): (Double, Double, Double, Double) =
     {
       def applyFunOnlyToRGB2(val1: (Double, Double, Double), val2: (Double, Double, Double),
@@ -79,8 +74,8 @@ object Operations {
         case ColorExpression(color) =>
           return (color.getRed / Image.ComponentValues, color.getGreen / Image.ComponentValues,
                   color.getBlue / Image.ComponentValues, color.getAlpha / Image.ComponentValues)
-        case operationBin @ (OperationBinary(_, _, _) |
-                             OperationGrayScale(_) | OperationComposite(_, _, _)
+        case operationBin @ (OperationBinary(_, _, _, _) |
+                             OperationGrayScale(_)
                             | OperationSet(_)) =>
           return operationBin.funcCalculateRGBA(image, row, col)
         case OperationMedian(exp, n) =>
@@ -160,17 +155,44 @@ object Operations {
     def getFun4: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = ???
   }
 
-  case class OperationBinary(val e1: Expression, val e2: Num, func: (Double, Double) => Double) extends Expression
+  case class OperationBinary(val e1: Expression, val e2: Num,
+                             func2Opt: Option[(Double, Double)=>Double],
+                             func4Opt: Option[(((Double, Double, Double, Double)) => ((Double, Double, Double, Double)))])
+                              extends Expression
   {
     override def toString: String = e1.toString + " + " + e2.toString
 
     override def copyOverride: Expression = this.copy()
 
-    def func1(a: Double) : Double = func(a, e2.value)
+
+    def func1(a: Double) : Double = {
+      func2Opt match {
+        case Some(func2) =>
+          return func2(a, e2.value)
+        case None =>
+          ???
+      }
+    }
 
     override def funcCalculateRGBA(image: Image, row: Int, col: Int):
-    (Double, Double, Double, Double) = return funcCalculateRGBAExpr(image, row, col)(e1, rgbaapplyTorgb(func1))
-    override def getFun4: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = rgbaapplyTorgb(func1)
+      (Double, Double, Double, Double)={
+      func2Opt match {
+        case Some(func2) =>
+          return funcCalculateRGBAExpr(image, row, col)(e1, rgbaapplyTorgb(func1))
+        case None=>
+          return funcCalculateRGBAExpr(image, row, col)(e1, func4Opt.get)
+      }
+      //return funcCalculateRGBAExpr(image, row, col)(e1, rgbaapplyTorgb(func1))
+    }
+
+    override def getFun4: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = {
+      func2Opt match {
+        case Some(func2) =>
+          return rgbaapplyTorgb(func1)
+        case None=>
+          return func4Opt.get
+      }
+    }
   }
 
   case class OperationSet(e: Expression) extends Expression {
@@ -195,7 +217,7 @@ object Operations {
     (Double, Double, Double, Double) = return funcCalculateRGBAExpr(image, row, col)(e, grayScale)
     override def getFun4: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = grayScale
   }
-
+  /*
   // TODO: Move this to operation binary.
   case class OperationComposite(e: Expression, name: String, list: List[Expression]) extends Expression
   {
@@ -210,7 +232,7 @@ object Operations {
     private var isFirst = true
     for (it <- list) {
       it match {
-        case operationBin @ (OperationBinary(_, _, _) |
+        case operationBin @ (OperationBinary(_, _, _, _) |
                              OperationGrayScale(_) | OperationComposite(_, _, _)
                             | OperationSet(_)) if !isFirst =>
           func1 = func1.andThen(it.getFun4)
@@ -227,6 +249,7 @@ object Operations {
 
     override def getFun4: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = func1
   }
+  */
 
   case class OperationMedian(e1: Expression, n: Int) extends Expression {
     override def copyOverride: Expression = this.copy()
@@ -265,5 +288,31 @@ object Operations {
     override def getFun4: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = ???
   }
 
+  def listOfOperationsToComposition(list: List[Expression]):
+        ((Double, Double, Double, Double)) => ((Double, Double, Double, Double))= {
+    var func4 = list.head.getFun4
 
+    var isFirst = true
+    for (it <- list) {
+      it match {
+        case operationBin @ (OperationBinary(_, _, _, _) |
+                             OperationGrayScale(_)
+                             | OperationSet(_)) if !isFirst =>
+          func4 = func4.andThen(it.getFun4)
+        case _ => if (!isFirst)
+          println("Bad initialization of composite function")
+      }
+      isFirst = false
+    }
+    return func4
+  }
+
+  def binaryToUnary(binaryFun: ((Double, Double) => Double), constant: Double) = (x: Double) => {
+    binaryFun(x, constant)
+  }
+
+  def rgbaapplyTorgb(fun: (Double) => Double) =
+    (value: (Double, Double, Double, Double)) => {
+      (fun(value._1), fun(value._2), fun(value._3), value._4)
+    }
 }
