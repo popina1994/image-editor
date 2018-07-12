@@ -100,6 +100,7 @@ object Image {
 
   def generateBlackImage():Image=
   {
+    // TODO: Update this so it generates data coresponding to image size.
     return new Image(ImageLogic.DefaultFileName)
   }
 }

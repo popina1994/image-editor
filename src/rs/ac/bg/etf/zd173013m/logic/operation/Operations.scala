@@ -196,7 +196,7 @@ object Operations {
     override def getFun4: ((Double, Double, Double, Double)) => (Double, Double, Double, Double) = grayScale
   }
 
-
+  // TODO: Move this to operation binary.
   case class OperationComposite(e: Expression, name: String, list: List[Expression]) extends Expression
   {
     override def toString:String = {
