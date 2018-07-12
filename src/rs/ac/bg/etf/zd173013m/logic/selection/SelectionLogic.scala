@@ -7,18 +7,21 @@ import rs.ac.bg.etf.zd173013m.logic.image.ImageLogic
 case class SelectionLogic(val imageLogic: ImageLogic, val scrollPaneSelectionSelection: ScrollPaneSelectionSelection,
                           val scrollPaneSelectionRectangular: ScrollPaneSelectionRectangular) extends ListViewListener{
   scrollPaneSelectionSelection.listViewSelection.listenerOpt = Option(this)
-  private var firstCreate: Boolean = true
 
-  def newSelection(name: Option[String]) = {
-    def addNewSelection() =
+  def addNewSelection(name: Option[String]) = {
+    def createNewSelection() =
       scrollPaneSelectionSelection.addNewSelection(name,
         scrollPaneSelectionRectangular.getRectSelections())
-    if (!firstCreate){
+    if (!scrollPaneSelectionSelection.vectorSelections().isEmpty){
       scrollPaneSelectionRectangular.generateNewData()
     }
-    addNewSelection()
+    createNewSelection()
     imageLogic.replaceSelections(scrollPaneSelectionRectangular.getRectSelections())
-    firstCreate = false
+  }
+
+  def deleteSelected() = {
+    scrollPaneSelectionSelection.deleteSelected()
+    scrollPaneSelectionRectangular.generateNewData()
   }
 
   private def updateSelections():Unit=
@@ -28,7 +31,7 @@ case class SelectionLogic(val imageLogic: ImageLogic, val scrollPaneSelectionSel
       find((s: SelectionSelection) => s.active)
     match {
       case Some(selected) => imageLogic.replaceSelections(selected.rectangles)
-      case None => println("Nothing is chosen")
+      case None => println("None selection is chosen")
     }
   }
 

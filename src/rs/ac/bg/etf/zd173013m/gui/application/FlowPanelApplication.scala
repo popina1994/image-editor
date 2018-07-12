@@ -82,14 +82,14 @@ class FlowPanelApplication(scrollPaneSelectionRectangular: ScrollPaneSelectionRe
           println("Created new selection")
           var result = Dialog.showInput(contents.head, "Input name for new selection", initial="")
           result = if (isEmpty(result.get)) (None) else result
-          selectionLogic.newSelection(result)
+          selectionLogic.addNewSelection(result)
       }
       preferredSize = new Dimension(30, 30)
     }
     contents += new Button {
       text = "Delete"
       reactions += {
-        case ButtonClicked(_) => scrollPaneSelectionSelection.deleteSelected()
+        case ButtonClicked(_) => selectionLogic.deleteSelected()
       }
       preferredSize = new Dimension(20, 30)
     }

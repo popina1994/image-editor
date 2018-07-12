@@ -64,7 +64,7 @@ class ImageLogic(imageLabel: ImageLabel, iconPath: String,
     }
 
 
-    val rectColor = new Color(0, 0, 255, 255)
+    val rectColor = ImageLogic.RectColor
     graphics.setColor(rectColor)
     graphics.setComposite(AlphaComposite.Src)
     curRectangle.order()
@@ -137,4 +137,5 @@ class ImageLogic(imageLabel: ImageLabel, iconPath: String,
 
 object ImageLogic{
   val DefaultFileName = "C:/Users/popina/IdeaProjects/ImageEditor/assets/Initial.png"
+  val RectColor = new Color(0, 0, 255, 255)
 }

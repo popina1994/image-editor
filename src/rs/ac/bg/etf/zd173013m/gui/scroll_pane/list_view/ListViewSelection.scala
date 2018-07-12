@@ -33,7 +33,7 @@ import scala.swing.{Dimension, ListView}
             }
             curVar = !curVar
           }
-          case None => println("Nema listener")
+          case None => println("It does not have listener")
         }
       }
     }

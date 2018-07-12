@@ -23,7 +23,3 @@ class ScrollPaneSelectionLayer() extends ScrollPaneSelection {
     return super.vectorSelections.asInstanceOf[Vector[SelectionLayer]]
   }
 }
-
-object ScrollPaneSelectionLayer {
-  val DefaultLayerName = "default"
-}
