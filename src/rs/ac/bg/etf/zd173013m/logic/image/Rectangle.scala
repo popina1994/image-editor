@@ -17,4 +17,14 @@ case class Rectangle(var leftTop: Point, var rightBottom: Point) {
     rightBottom.x = pairX._2
     rightBottom.y = pairY._2
   }
+  def constraint(width: Int, height: Int): Unit = {
+    def clampPoint(point: Point)=
+      new Point(clamp(point.x, 0, width-1), clamp(point.y, 0, height-1))
+    leftTop = clampPoint(leftTop)
+    rightBottom = clampPoint(rightBottom)
+  }
+
+  def clamp(value: Int, minRange: Int, maxRange: Int): Int = {
+    return Math.max(minRange, Math.min(maxRange, value))
+  }
 }

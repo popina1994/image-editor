@@ -40,6 +40,8 @@ class ImageLogic(imageLabel: ImageLabel, iconPath: String,
                               new Point(image.icon.getIconWidth-1, image.icon.getIconHeight-1))
 
   private def updateImage(refreshImage: Boolean, updateSelection: Boolean, saveImage: Boolean):BufferedImage = {
+    curRectangle.order()
+    curRectangle.constraint(image.icon.getIconWidth, image.icon.getIconHeight)
     val bufferedImage = new BufferedImage(image.icon.getIconWidth, image.icon.getIconHeight, BufferedImage.TYPE_INT_ARGB)
     val graphics = bufferedImage.createGraphics()
     image.icon.paintIcon(null, graphics, 0, 0)
@@ -75,11 +77,10 @@ class ImageLogic(imageLabel: ImageLabel, iconPath: String,
       }
     }
 
-
     val rectColor = ImageLogic.RectColor
     graphics.setColor(rectColor)
     graphics.setComposite(AlphaComposite.Src)
-    curRectangle.order()
+
     if (!saveImage)
     {
       drawRectangle(curRectangle)
