@@ -1,5 +1,6 @@
 package rs.ac.bg.etf.zd173013m.gui.scroll_pane
 
+import rs.ac.bg.etf.zd173013m.logic.image.Image
 import rs.ac.bg.etf.zd173013m.logic.image.Image.generateBlackImage
 import rs.ac.bg.etf.zd173013m.logic.selection.{Selection, SelectionLayer, SelectionRectangular, SelectionSelection}
 
@@ -14,17 +15,27 @@ class ScrollPaneSelectionLayer() extends ScrollPaneSelection {
     }
 
 
-  protected def createSelection(nameOpt: Option[String], width: Int, height: Int): SelectionLayer =
+  protected def createSelection(nameOpt: Option[String], image: Image, isBlack: Boolean): SelectionLayer = {
+    def layerGenerateAndUpdateImage(layer: SelectionLayer) =
+      if (isBlack)
+        {
+          layer.updateImage(generateBlackImage(image.icon.getIconWidth, image.icon.getIconHeight))
+        }
+      else
+      {
+        layer.updateImage(new Image(image.iconPath))
+      }
     nameOpt match {
       case Some(nameVal) =>
         val layer = new SelectionLayer(nameVal, None)
-        layer.updateImage(generateBlackImage(width, height))
+        layerGenerateAndUpdateImage(layer)
         return layer
       case None =>
         val layer = new SelectionLayer()
-        layer.updateImage(generateBlackImage(width, height))
+        layerGenerateAndUpdateImage(layer)
         return layer
     }
+  }
 
   override def addNewSelection(name: Option[String]): SelectionLayer =
   {
@@ -32,9 +43,9 @@ class ScrollPaneSelectionLayer() extends ScrollPaneSelection {
     return newSelection
   }
 
-  def addNewSelection(name: Option[String], width: Int, height: Int): SelectionLayer =
+  def addNewSelection(name: Option[String], image: Image): SelectionLayer =
   {
-    val selection: Selection = createSelection(name, width, height)
+    val selection: Selection = createSelection(name, image, !_listSelections.isEmpty)
     super.addSelectionToListView(selection)
     return  _listSelections.last.asInstanceOf[SelectionLayer]
   }

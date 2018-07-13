@@ -6,7 +6,7 @@ import java.io.File
 import javax.imageio.ImageIO
 import javax.swing.ImageIcon
 
-class Image(iconPath: String) {
+class Image(val iconPath: String) {
   val icon = new ImageIcon(iconPath)
   private[this] val bufferedImage = new BufferedImage(icon.getIconWidth, icon.getIconHeight, BufferedImage.TYPE_INT_ARGB)
   private[this] val g = bufferedImage.createGraphics()

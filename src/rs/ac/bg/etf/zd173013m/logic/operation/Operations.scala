@@ -116,10 +116,8 @@ object Operations {
 
     private def evaluateAllSelected(image: Image, exp: Expression): Unit = {
       val tmpBuffer = image.pixelsComponents.clone()
-      var calculateSub = true
       for (row <- 0 until image.icon.getIconHeight; col <- 0 until image.icon.getIconWidth
       if image.isSelected(row, col)) {
-        calculateSub = false
         val expEval = exp.calculate(image, row, col)
         if ((row == 0) && (col == 0))
           println(expEval)

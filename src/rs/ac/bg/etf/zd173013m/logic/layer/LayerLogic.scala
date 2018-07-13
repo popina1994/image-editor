@@ -8,7 +8,7 @@ class LayerLogic(val scrollPaneSelectionLayer: ScrollPaneSelectionLayer, imageLo
   var layerChangeListener : Option[LayerChangeListener] = None
 
   def newSelection(name: Option[String]): Unit = {
-    scrollPaneSelectionLayer.addNewSelection(name, imageLogic.image.icon.getIconWidth, imageLogic.image.icon.getIconHeight)
+    scrollPaneSelectionLayer.addNewSelection(name, imageLogic.image)
   }
   scrollPaneSelectionLayer.listViewSelection.listenerOpt = Option(this)
 
