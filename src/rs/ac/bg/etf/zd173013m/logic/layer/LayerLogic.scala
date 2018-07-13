@@ -2,12 +2,13 @@ package rs.ac.bg.etf.zd173013m.logic.layer
 
 import rs.ac.bg.etf.zd173013m.gui.scroll_pane.ScrollPaneSelectionLayer
 import rs.ac.bg.etf.zd173013m.gui.scroll_pane.list_view.ListViewListener
+import rs.ac.bg.etf.zd173013m.logic.image.ImageLogic
 
-class LayerLogic(val scrollPaneSelectionLayer: ScrollPaneSelectionLayer)  extends ListViewListener{
+class LayerLogic(val scrollPaneSelectionLayer: ScrollPaneSelectionLayer, imageLogic: ImageLogic)  extends ListViewListener{
   var layerChangeListener : Option[LayerChangeListener] = None
 
   def newSelection(name: Option[String]): Unit = {
-    scrollPaneSelectionLayer.addNewSelection(name)
+    scrollPaneSelectionLayer.addNewSelection(name, imageLogic.image.icon.getIconWidth, imageLogic.image.icon.getIconHeight)
   }
   scrollPaneSelectionLayer.listViewSelection.listenerOpt = Option(this)
 
@@ -19,14 +20,14 @@ class LayerLogic(val scrollPaneSelectionLayer: ScrollPaneSelectionLayer)  extend
     }
   }
 
-  override def onSelected(): Unit = {
-    updateImage()
-  }
-
   def updateTransparency(alpha: Int) = {
     for (layer <- scrollPaneSelectionLayer.vectorSelections() if layer.active) {
       layer.updateTransparency(alpha / LayerLogic.MaxSlider.toDouble)
     }
+    updateImage()
+  }
+
+  override def onSelected(): Unit = {
     updateImage()
   }
 

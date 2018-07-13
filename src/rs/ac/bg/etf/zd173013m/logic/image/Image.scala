@@ -1,11 +1,10 @@
 package rs.ac.bg.etf.zd173013m.logic.image
 
 import java.awt.image.{BufferedImage, DataBufferInt}
+import java.io.File
 
+import javax.imageio.ImageIO
 import javax.swing.ImageIcon
-import rs.ac.bg.etf.zd173013m.logic.selection.SelectionRectangular
-
-import scala.swing.Color
 
 class Image(iconPath: String) {
   val icon = new ImageIcon(iconPath)
@@ -98,9 +97,21 @@ class Image(iconPath: String) {
 object Image {
   val ComponentValues: Double = 256.0
 
-  def generateBlackImage():Image=
+  def generateDefaultImage():Image=
   {
     // TODO: Update this so it generates data coresponding to image size.
     return new Image(ImageLogic.DefaultFileName)
+  }
+
+  def generateBlackImage(width: Int, height: Int):Image = {
+    val bufferedImage: BufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
+    for (row <- 0 until height; col <- 0 until width) {
+      val color = ImageLogic.LayerColor
+      val pixel = (color.getAlpha << 24) | (color.getRed << 16) | (color.getGreen << 8) | color.getBlue
+      bufferedImage.setRGB(col, row, pixel)
+    }
+    val file = new File(ImageLogic.DefaultBlackGenerated)
+    ImageIO.write(bufferedImage, "png", file)
+    return new Image(ImageLogic.DefaultBlackGenerated)
   }
 }

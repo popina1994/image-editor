@@ -151,5 +151,7 @@ class ImageLogic(imageLabel: ImageLabel, iconPath: String,
 
 object ImageLogic{
   val DefaultFileName = "C:/Users/popina/IdeaProjects/ImageEditor/assets/Initial.png"
+  val DefaultBlackGenerated = "C:/Users/popina/IdeaProjects/ImageEditor/assets/Generation.png"
   val RectColor = new Color(0, 0, 255, 255)
+  val LayerColor = new Color(0, 0, 0, 255)
 }

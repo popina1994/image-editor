@@ -36,7 +36,7 @@ object Application extends SimpleSwingApplication {
       val operationsLogic = new OperationsLogic(buttonGroupOperations, scrollPaneSelectionLayer)
       operationsLogic.listenerOpt = Option(imageLogic)
       // UPDATE
-      val layerLogic = new LayerLogic(scrollPaneSelectionLayer)
+      val layerLogic = new LayerLogic(scrollPaneSelectionLayer, imageLogic)
       layerLogic.layerChangeListener = Option(imageLogic)
 
       flowPanelApplication = new FlowPanelApplication(scrollPaneSelectionRectangular, scrollPaneSelectionSelection,
